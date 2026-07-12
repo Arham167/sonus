@@ -1,32 +1,28 @@
 import sqlite3, os
 
-base_dir = os.getcwd()
+base_dir = os.path.dirname(os.path.abspath(__file__))
+db_path = os.path.join(base_dir, "sonus.db")
+schema_path = os.path.join(base_dir, "schema.sql")
 
-def main():
+def connection(songs_data):
     try:
-        with sqlite3.connect("sonus.db") as conn:
+        with sqlite3.connect(db_path) as conn:
             print("Opened SQLite database")
             cursor = conn.cursor()
 
             create_table(cursor)
 
-            name = input("Enter song name: ")
-            channel = input("Enter channel: ")
-            artist = input("Enter artists (comma separated): ")
+            for song in songs_data:
+                name, channel = song.values()
+                artist = "NULL"
 
-            add_song(cursor, name, channel, artist)
-
-            list_all_songs(cursor)
-
-            list_songs_from_artist(cursor, channel)
-
-            conn.commit()
+                add_song(cursor, name, channel, artist)
 
     except sqlite3.OperationalError as e:
         print(f"Error happened: {e}")
 
 def create_table(cursor):
-    with open(f"{base_dir}/schema.sql") as f:
+    with open(schema_path) as f:
         cursor.executescript(f.read())
         print("Created songs table")
 
@@ -35,7 +31,7 @@ def add_song(cursor, name, channel, artist):
                           VALUES (?,?,?)"""
 
     if not song_exists(cursor, name, channel):
-        cursor.execute(insert_statement, (name, channel, artist))
+        print(cursor.execute(insert_statement, (name, channel, artist)))
         print("Added")
 
     else:
