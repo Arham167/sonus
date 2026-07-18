@@ -6,8 +6,8 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("Sonus")
 
-        self.geometry = screen.availableGeometry()
-        _, _, width, height = self.geometry.getRect()
+        self.screen_geometry = screen.availableGeometry()
+        _, _, width, height = self.screen_geometry.getRect()
         new_w = int(width * 0.9)
         new_h = int(height * 0.9)
 
@@ -21,6 +21,6 @@ class MainWindow(QMainWindow):
 
         if event.oldState() & Qt.WindowMaximized and not self.isMaximized():
             size = self.size()
-            center_x = self.geometry.x() + (self.geometry.width() - size.width()) // 2
-            center_y = self.geometry.y() + (self.geometry.height() - size.height()) // 2
+            center_x = self.screen_geometry.x() + (self.screen_geometry.width() - size.width()) // 2
+            center_y = self.screen_geometry.y() + (self.screen_geometry.height() - size.height()) // 2
             self.move(center_x, center_y)
