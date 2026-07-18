@@ -31,8 +31,8 @@ def add_song(cursor, name, channel, artist):
                           VALUES (?,?,?)"""
 
     if not song_exists(cursor, name, channel):
-        print(cursor.execute(insert_statement, (name, channel, artist)))
-        print("Added")
+        cursor.execute(insert_statement, (name, channel, artist))
+        print("Added", name, "from", channel)
 
     else:
         print("already exists")
