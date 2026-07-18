@@ -1,15 +1,19 @@
-import os, sys
-from PySide6.QtWidgets import QApplication
-
 from backend.scanner import scan_folder
 from backend.extractor import extract_songs
 from database import database
 from ui import app
-from ui.components import main_window
+from ui.components import main_window, scan_folder_popup
 
 application = app.App()
-window = main_window.MainWindow()
+
+screen = application.primaryScreen()
+
+window = main_window.MainWindow(screen)
 window.showMaximized()
+
+popup = scan_folder_popup.ScanPopup(window)
+popup.show()
+
 application.exec()
 
 # folder = input("Enter folder location: ")
