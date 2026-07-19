@@ -1,5 +1,6 @@
 from PySide6.QtWidgets import QSizePolicy, QVBoxLayout, QHBoxLayout, QDialog, QLabel, QLineEdit, QPushButton, QFileDialog
 from PySide6.QtCore import QTimer, Qt, Signal
+import os
 
 class ScanPopup(QDialog):
     scan_requested = Signal(str)
@@ -72,8 +73,7 @@ class ScanPopup(QDialog):
 
     def scan(self):
         path = self.input.text().strip()
-        if not path:
-            return
-
-        self.scan_requested.emit(path)
-        self.close()
+        if not path or os.path.isdir(path):
+            print(path)
+        else:
+            self.scan_requested.emit(path)
