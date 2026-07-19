@@ -15,7 +15,19 @@ class SonusApplication():
         self.window.showMaximized()
 
         self.popup = scan_folder_popup.ScanPopup(self.window)
+        self.popup.scan_requested.connect(self.scan)
         QTimer.singleShot(0, self.popup.show)
+
+    def scan(self, folder):
+        songs = scan_folder(folder)
+        self.extract(songs, folder)
+
+    def extract(self, songs, folder):
+        songs_data = extract_songs(songs, folder)
+        self.add(songs_data)
+
+    def add(self, songs_data):
+        database.connection(songs_data)
 
     def run(self):
         self.application.exec()

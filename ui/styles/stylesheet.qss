@@ -3,11 +3,18 @@ QMainWindow {
 }
 
 QPushButton {
-    background-color: #9787f0ff;
+    font-family: "Comic Sans MS";
+    background-color: #2b0cd8ff;
+    font-size: 16px;
 }
 
 QLabel {
-    font: Arial;
+    font-family: "Comic Sans MS";
     font-size: 24px;
     color: #cde8f0ff;
+}
+
+QLineEdit {
+    font-family: "Comic Sans MS";
+    font-size: 16px;
 }
