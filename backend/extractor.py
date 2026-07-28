@@ -1,4 +1,4 @@
-import os
+import os, time
 
 def extract_songs(songs, folder):
     songs_data = []
@@ -13,5 +13,7 @@ def extract_songs(songs, folder):
             songs_data.append({
                 "name": name,
                 "channel": channel})
+
+            time.sleep(0.001)
 
     return songs_data

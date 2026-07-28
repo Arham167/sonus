@@ -73,7 +73,7 @@ class ScanPopup(QDialog):
 
     def scan(self):
         path = self.input.text().strip()
-        if not path or os.path.isdir(path):
-            print(path)
+        if not path or not os.path.isdir(path):
+            print(path, "is wrong")
         else:
             self.scan_requested.emit(path)

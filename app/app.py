@@ -1,3 +1,4 @@
+from database import database
 from backend.scanner import scan_folder
 from backend.extractor import extract_songs
 from database import database
@@ -18,13 +19,15 @@ class ScanWorker(QObject):
         try:
             songs = scan_folder(self.folder)
             songs_data = extract_songs(songs, self.folder)
-            database.connection(songs_data)
+            database.initialize_database(songs_data)
             self.finished.emit(songs_data)
         except Exception as e:
             self.error.emit(str(e))
 
-class SonusApplication():
+class SonusApplication(QObject):
     def __init__(self):
+        super().__init__()
+
         self.application = app.App()
 
         screen = self.application.primaryScreen()
@@ -38,6 +41,14 @@ class SonusApplication():
 
     def import_library(self, folder):
         self.popup.submit_button.setEnabled(False)
+        self.popup.submit_button.setText("Scanning...")
+
+        try:
+            database.initialize_database(folder = folder)
+        except Exception:
+            self.popup.submit_button.setEnabled(True)
+            self.popup.submit_button.setText("Submit")
+            return
 
         self.thread = QThread()
         self.worker = ScanWorker(folder)
@@ -54,9 +65,14 @@ class SonusApplication():
 
     def on_import_finished(self, songs_data):
         self.popup.submit_button.setEnabled(True)
+        self.popup.submit_button.setText("Submit")
+
+        if database.get_settings("music_folder") is not None:
+            self.popup.close()
 
     def on_import_error(self, message):
         self.popup.submit_button.setEnabled(True)
+        self.popup.submit_button.setText("Submit")
 
     def run(self):
         self.application.exec()

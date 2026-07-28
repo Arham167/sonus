@@ -4,3 +4,8 @@ CREATE TABLE IF NOT EXISTS songs (
                   channel TEXT NOT NULL,
                   artist TEXT NOT NULL
                   );
+
+CREATE TABLE IF NOT EXISTS settings (
+                  key TEXT PRIMARY KEY,
+                  value TEXT NOT NULL
+);
