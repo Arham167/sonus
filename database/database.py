@@ -1,6 +1,4 @@
-from PySide6.QtCore import QXmlStreamNotationDeclaration
-from PySide6 import QtWidgets
-import sqlite3, os, time
+import sqlite3, os, time, uuid
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 db_path = os.path.join(base_dir, "sonus.db")
@@ -17,11 +15,14 @@ def initialize_database(songs_data = None, folder = None):
                 insert_settings(cursor, key = "music_folder", value = folder)
 
             if songs_data:
+                print("have data")
                 for song in songs_data:
-                    name, channel = song.values()
-                    artist = "NULL"
+                    name = song.get("name")
+                    channel = song.get("channel")
+                    path = song.get("path", "")
+                    artist = song.get("artist", "NULL")
 
-                    add_song(cursor, name, channel, artist)
+                    add_song(cursor, name, channel, artist, path)
 
                     time.sleep(0.001)
 
@@ -32,16 +33,40 @@ def create_tables(cursor):
     with open(schema_path) as f:
         cursor.executescript(f.read())
 
-def add_song(cursor, name, channel, artist):
-    insert_statement = """INSERT INTO songs(name, channel, artist)
-                          VALUES (?,?,?)"""
+def add_artist(cursor, artist_name):
+    print("adding artist")
+
+    cursor.execute(
+        "SELECT artist_id FROM artists WHERE artist_name = ?",
+        (artist_name,),)
+
+    artist_exists = cursor.fetchone()
+
+    if artist_exists:
+        return artist_exists[0]
+
+    else:
+        artist_id = str(uuid.uuid4())
+        cursor.execute(
+            "INSERT INTO artists(artist_id, artist_name) VALUES (?, ?)",
+            (artist_id, artist_name),
+        )
+        print("added artist")
+        return artist_id 
+
+def add_song(cursor, name, channel, artist, path):
+    insert_statement = """INSERT INTO songs(song_id, name, channel, artist, path)
+                          VALUES (?,?,?,?,?)"""
 
     if not song_exists(cursor, name, channel):
-        cursor.execute(insert_statement, (name, channel, artist))
+        artist_id = add_artist(cursor, channel)
+        song_id = str(uuid.uuid4())
+
+        cursor.execute(insert_statement, (song_id, name, artist_id, artist, path))
         print("Added", name, "from", channel)
 
     else:
-        pass
+        print("error")
 
 def insert_settings(cursor, key, value):
     insert_statement = """INSERT INTO settings(key, value)
