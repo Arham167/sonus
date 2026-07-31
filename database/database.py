@@ -18,20 +18,36 @@ def initialize_database(songs_data = None, folder = None):
                 print("have data")
                 for song in songs_data:
                     name = song.get("name")
-                    channel = song.get("channel")
+                    artist = song.get("artist")
                     path = song.get("path", "")
-                    artist = song.get("artist", "NULL")
+                    feat_artists = song.get("feat_artists", "NULL")
 
-                    add_song(cursor, name, channel, artist, path)
+                    add_song(cursor, name, artist, feat_artists, path)
 
                     time.sleep(0.001)
 
     except sqlite3.OperationalError as e:
-        print(f"Error happened: {e}")
+        print(f"error happened: {e}")
 
+# read schema and create DB tables
 def create_tables(cursor):
     with open(schema_path) as f:
         cursor.executescript(f.read())
+
+def add_song(cursor, name, artist, feat_artists, path):
+    insert_statement = """INSERT INTO songs(song_id, name, artist, featuring_artists, path)
+                          VALUES (?,?,?,?,?)"""
+
+    if not song_exists(cursor, name, artist):
+        print("adding")
+        artist_id = add_artist(cursor, artist)
+        song_id = str(uuid.uuid4())
+
+        cursor.execute(insert_statement, (song_id, name, artist_id, feat_artists, path))
+        print("Added", name, "from", artist)
+
+    else:
+        print("error")
 
 def add_artist(cursor, artist_name):
     print("adding artist")
@@ -53,20 +69,6 @@ def add_artist(cursor, artist_name):
         )
         print("added artist")
         return artist_id 
-
-def add_song(cursor, name, channel, artist, path):
-    insert_statement = """INSERT INTO songs(song_id, name, channel, artist, path)
-                          VALUES (?,?,?,?,?)"""
-
-    if not song_exists(cursor, name, channel):
-        artist_id = add_artist(cursor, channel)
-        song_id = str(uuid.uuid4())
-
-        cursor.execute(insert_statement, (song_id, name, artist_id, artist, path))
-        print("Added", name, "from", channel)
-
-    else:
-        print("error")
 
 def insert_settings(cursor, key, value):
     insert_statement = """INSERT INTO settings(key, value)
@@ -94,15 +96,14 @@ def get_settings(key):
     except sqlite3.OperationalError as e:
         print(f"Error happened: {e}")
 
-def song_exists(cursor, name, channel):
+def song_exists(cursor, path):
     search_song_statement = """SELECT 1
                                FROM songs 
-                               WHERE name = ?
-                               AND channel = ?
+                               WHERE path = ?
                                LIMIT 1"""
 
-    cursor.execute(search_song_statement, (name, channel))
-    rows = cursor.fetchall()
+    cursor.execute(search_song_statement, (path))
+    rows = cursor.fetchone()
 
     if len(rows) > 0:
         return True
@@ -117,12 +118,12 @@ def list_all_songs(cursor):
     for row in rows:
         print(row)
 
-def list_songs_from_artist(cursor, channel):
+def list_songs_from_artist(cursor, artist):
     list_statement = """SELECT *
                         FROM songs
-                        WHERE channel = ?"""
+                        WHERE artist = ?"""
     
-    cursor.execute(list_statement, (channel,))
+    cursor.execute(list_statement, (artist,))
     rows = cursor.fetchall()
 
     for row in rows:

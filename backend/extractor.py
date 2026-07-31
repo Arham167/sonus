@@ -2,7 +2,6 @@ import os, time
 
 def extract_songs(songs, folder):
     songs_data = []
-    print(folder)
 
     for song in songs:
         song_path = os.path.abspath(song)
@@ -10,11 +9,11 @@ def extract_songs(songs, folder):
         split_name = relative_path.split(os.sep)
 
         if len(split_name) > 1:
-            channel = split_name[0]
+            artist = split_name[0]
             name = split_name[-1]
             songs_data.append({
                 "name": name,
-                "channel": channel,
+                "artist": artist,
                 "path": song_path})
 
             time.sleep(0.001)

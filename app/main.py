@@ -1,3 +1,5 @@
+# Main entry point
+
 from app.app import SonusApplication
 
 if __name__ == "__main__":

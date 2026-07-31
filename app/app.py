@@ -1,3 +1,5 @@
+# Main orchestrator
+
 from database import database
 from backend.scanner import scan_folder
 from backend.extractor import extract_songs
@@ -5,6 +7,8 @@ from ui import app
 from ui.components import main_window, scan_folder_popup
 from PySide6.QtCore import QTimer, QThread, QObject, Signal, Slot
 import os
+
+# background worker for scanning folders
 
 class ScanWorker(QObject):
     finished = Signal(list)
@@ -14,13 +18,16 @@ class ScanWorker(QObject):
         super().__init__()
         self.folder = folder
 
-    @Slot()
+    @Slot() # PySide6 Slot decorator
+
     def run(self):
         try:
             songs = scan_folder(self.folder)
             songs_data = extract_songs(songs, self.folder)
             database.initialize_database(songs_data)
+
             self.finished.emit(songs_data)
+
         except Exception as e:
             self.error.emit(str(e))
 
@@ -38,7 +45,8 @@ class SonusApplication(QObject):
         folder = database.get_settings("music_folder")
 
         if folder and os.path.isdir(folder):
-            pass
+            pass # (TODO: scan folder on each launch in background thread and update db if any existing thing changed or smth new added)
+
         else:
             self.popup = scan_folder_popup.ScanPopup(self.window)
             self.popup.scan_requested.connect(self.import_library)
@@ -50,6 +58,7 @@ class SonusApplication(QObject):
 
         try:
             database.initialize_database(folder = folder)
+            
         except Exception:
             self.popup.submit_button.setEnabled(True)
             self.popup.submit_button.setText("Submit")
