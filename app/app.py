@@ -11,12 +11,13 @@ import os
 # background worker for scanning folders
 
 class ScanWorker(QObject):
-    finished = Signal(list)
+    finished = Signal(list, list)
     error = Signal(str)
 
-    def __init__(self, folder):
+    def __init__(self, folder, mode = "background"):
         super().__init__()
         self.folder = folder
+        self.mode = mode
 
     @Slot() # PySide6 Slot decorator
 
@@ -24,9 +25,30 @@ class ScanWorker(QObject):
         try:
             songs = scan_folder(self.folder)
             songs_data = extract_songs(songs, self.folder)
-            database.initialize_database(songs_data)
 
-            self.finished.emit(songs_data)
+            if self.mode == "manual":
+                database.initialize_database(songs_data)
+                self.finished.emit(songs_data)
+
+            elif self.mode == "background":
+                existing_paths = database.get_all_song_paths() 
+                scanned_paths = []
+
+                for song in songs_data:
+                    scanned_path = song.get("path")
+                    scanned_paths.append(scanned_path)
+
+                existing_paths = [os.path.abspath(p) for p in existing_paths]
+                scanned_paths = [os.path.abspath(p) for p in scanned_paths]
+
+                new_paths = [path for path in scanned_paths if path not in existing_paths]
+                removed_paths = [path for path in existing_paths if path not in scanned_paths]
+
+                new_songs_data = [song for song in songs_data if os.path.abspath(song.get("path")) in new_paths]
+
+                database.update_database(new_songs_data = new_songs_data, removed_paths = removed_paths)
+
+                self.finished.emit(new_songs_data, removed_paths)
 
         except Exception as e:
             self.error.emit(str(e))
@@ -45,7 +67,7 @@ class SonusApplication(QObject):
         folder = database.get_settings("music_folder")
 
         if folder and os.path.isdir(folder):
-            pass # (TODO: scan folder on each launch in background thread and update db if any existing thing changed or smth new added)
+            self.background_scan(folder)
 
         else:
             self.popup = scan_folder_popup.ScanPopup(self.window)
@@ -65,12 +87,25 @@ class SonusApplication(QObject):
             return
 
         self.scan_thread = QThread()
-        self.scan_worker = ScanWorker(folder)
+        self.scan_worker = ScanWorker(folder, mode = "manual")
         self.scan_worker.moveToThread(self.scan_thread)
 
         self.scan_thread.started.connect(self.scan_worker.run)
         self.scan_worker.finished.connect(self.on_import_finished)
         self.scan_worker.error.connect(self.on_import_error)
+        self.scan_worker.finished.connect(self.scan_thread.quit)
+        self.scan_worker.finished.connect(self.scan_worker.deleteLater)
+        self.scan_thread.finished.connect(self.scan_thread.deleteLater)
+
+        self.scan_thread.start()
+
+    def background_scan(self, folder):
+        self.scan_thread = QThread()
+        self.scan_worker = ScanWorker(folder, mode = "background")
+        self.scan_worker.moveToThread(self.scan_thread)
+
+        self.scan_thread.started.connect(self.scan_worker.run)
+        self.scan_worker.finished.connect(self.on_scan_finished)
         self.scan_worker.finished.connect(self.scan_thread.quit)
         self.scan_worker.finished.connect(self.scan_worker.deleteLater)
         self.scan_thread.finished.connect(self.scan_thread.deleteLater)
@@ -85,6 +120,9 @@ class SonusApplication(QObject):
     def on_import_error(self, message):
         self.popup.submit_button.setEnabled(True)
         self.popup.submit_button.setText("Submit")
+
+    def on_scan_finished(self, scanned_songs):
+        print("finished")
 
     def run(self):
         self.application.exec()

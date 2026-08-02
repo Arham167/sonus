@@ -15,7 +15,6 @@ def initialize_database(songs_data = None, folder = None):
                 insert_settings(cursor, key = "music_folder", value = folder)
 
             if songs_data:
-                print("have data")
                 for song in songs_data:
                     name = song.get("name")
                     artist = song.get("artist")
@@ -29,7 +28,32 @@ def initialize_database(songs_data = None, folder = None):
     except sqlite3.OperationalError as e:
         print(f"error happened: {e}")
 
-# read schema and create DB tables
+def update_database(folder = None, new_songs_data = None, removed_paths = None):
+    try:
+        with sqlite3.connect(db_path) as conn:
+            cursor = conn.cursor()
+
+            if folder:
+                insert_settings(cursor, key = "music_folder", value = folder)
+
+            if new_songs_data is not None and len(new_songs_data) > 0:
+                for song in new_songs_data:
+                    name = song.get("name")
+                    artist = song.get("artist")
+                    path = song.get("path", "")
+                    feat_artists = song.get("feat_artists", "NULL")
+
+                    add_song(cursor, name, artist, feat_artists, path)
+
+            if removed_paths is not None and len(removed_paths) > 0:
+                for path in removed_paths:
+                        delete_song(cursor, path)
+
+            return True
+
+    except sqlite3.OperationalError as e:
+        print(f"error happened: {e}")
+
 def create_tables(cursor):
     with open(schema_path) as f:
         cursor.executescript(f.read())
@@ -47,7 +71,7 @@ def add_song(cursor, name, artist, feat_artists, path):
         print("Added", name, "from", artist)
 
     else:
-        print("error")
+        print("already exists")
 
 def add_artist(cursor, artist_name):
     insert_artist_statement = """INSERT INTO artists(artist_id, artist_name) 
@@ -86,9 +110,14 @@ def artist_exists(cursor, artist_name):
     if artist_id is not None:
         return artist_id
 
+def delete_song(cursor, path):
+    delete_statement = """DELETE FROM songs
+                          WHERE path = ?"""
+    cursor.execute(delete_statement, (path,))
+
 def insert_settings(cursor, key, value):
     insert_statement = """INSERT INTO settings(key, value)
-                          VALUES (?, ?)
+                          VALUES (?,?)
                           ON CONFLICT (key)
                           DO UPDATE SET value = excluded.value"""
     cursor.execute(insert_statement, (key, value))
@@ -112,6 +141,21 @@ def get_settings(key):
     except sqlite3.OperationalError as e:
         print(f"Error happened: {e}")
 
+def get_all_song_paths():
+    with sqlite3.connect(db_path) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT path FROM songs")
+
+        rows = cursor.fetchall()
+        
+        paths = []
+
+        for row in rows:
+            path = row[0]
+            paths.append(path)
+
+        return paths
+
 def list_all_songs(cursor):
     list_statement = """SELECT *
                         FROM songs"""
@@ -120,7 +164,7 @@ def list_all_songs(cursor):
     rows = cursor.fetchall()
 
     for row in rows:
-        print(row)
+        return row
 
 def list_songs_from_artist(cursor, artist):
     list_statement = """SELECT *
