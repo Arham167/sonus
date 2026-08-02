@@ -35,40 +35,56 @@ def create_tables(cursor):
         cursor.executescript(f.read())
 
 def add_song(cursor, name, artist, feat_artists, path):
-    insert_statement = """INSERT INTO songs(song_id, name, artist, featuring_artists, path)
-                          VALUES (?,?,?,?,?)"""
+    insert_song_statement = """INSERT INTO songs(song_id, name, artist, featuring_artists, path)
+                                VALUES (?,?,?,?,?)"""
+    song_id = song_exists(cursor, path)
 
-    if not song_exists(cursor, name, artist):
-        print("adding")
+    if not song_id:
         artist_id = add_artist(cursor, artist)
         song_id = str(uuid.uuid4())
 
-        cursor.execute(insert_statement, (song_id, name, artist_id, feat_artists, path))
+        cursor.execute(insert_song_statement, (song_id, name, artist_id, feat_artists, path))
         print("Added", name, "from", artist)
 
     else:
         print("error")
 
 def add_artist(cursor, artist_name):
-    print("adding artist")
+    insert_artist_statement = """INSERT INTO artists(artist_id, artist_name) 
+                                 VALUES (?, ?)"""
+    artist_id = artist_exists(cursor, artist_name)
 
-    cursor.execute(
-        "SELECT artist_id FROM artists WHERE artist_name = ?",
-        (artist_name,),)
+    if not artist_id:
+        artist_id = str(uuid.uuid4())
+        cursor.execute(insert_artist_statement, (artist_id, artist_name))
 
-    artist_exists = cursor.fetchone()
-
-    if artist_exists:
-        return artist_exists[0]
+        return artist_id
 
     else:
-        artist_id = str(uuid.uuid4())
-        cursor.execute(
-            "INSERT INTO artists(artist_id, artist_name) VALUES (?, ?)",
-            (artist_id, artist_name),
-        )
-        print("added artist")
-        return artist_id 
+        return artist_id[0]
+
+def song_exists(cursor, path):
+    search_song_statement = """SELECT 1
+                               FROM songs 
+                               WHERE path = ?
+                               LIMIT 1"""
+
+    cursor.execute(search_song_statement, (path,))
+    song_id = cursor.fetchone()
+
+    if song_id is not None:
+        return song_id
+
+def artist_exists(cursor, artist_name):
+    search_artist_statement = """SELECT artist_id 
+                                 FROM artists 
+                                 WHERE artist_name = ?"""
+
+    cursor.execute(search_artist_statement, (artist_name,))
+    artist_id = cursor.fetchone()
+
+    if artist_id is not None:
+        return artist_id
 
 def insert_settings(cursor, key, value):
     insert_statement = """INSERT INTO settings(key, value)
@@ -95,18 +111,6 @@ def get_settings(key):
 
     except sqlite3.OperationalError as e:
         print(f"Error happened: {e}")
-
-def song_exists(cursor, path):
-    search_song_statement = """SELECT 1
-                               FROM songs 
-                               WHERE path = ?
-                               LIMIT 1"""
-
-    cursor.execute(search_song_statement, (path))
-    rows = cursor.fetchone()
-
-    if len(rows) > 0:
-        return True
 
 def list_all_songs(cursor):
     list_statement = """SELECT *
