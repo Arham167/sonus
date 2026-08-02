@@ -36,5 +36,6 @@ class MainWindow(QMainWindow):
             center_y = self.screen_geometry.y() + (self.screen_geometry.height() - size.height()) // 2
             self.move(center_x, center_y)
 
-    def update_topbar(self, songs_count, artists_count):
+    def update_topbar(self, songs_count = 0, artists_count = 0, scanning = False):
         self.top_bar.update_counts(songs_count, artists_count)
+        self.top_bar.update_status(scanning)

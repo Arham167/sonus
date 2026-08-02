@@ -33,6 +33,8 @@ def update_database(folder = None, new_songs_data = None, removed_paths = None):
         with sqlite3.connect(db_path) as conn:
             cursor = conn.cursor()
 
+            create_tables(cursor)
+
             if folder:
                 insert_settings(cursor, key = "music_folder", value = folder)
 
@@ -68,7 +70,6 @@ def add_song(cursor, name, artist, feat_artists, path):
         song_id = str(uuid.uuid4())
 
         cursor.execute(insert_song_statement, (song_id, name, artist_id, feat_artists, path))
-        print("Added", name, "from", artist)
 
     else:
         print("already exists")
@@ -176,6 +177,8 @@ def list_songs_from_artist(cursor, artist):
         print(row)
 
 def insert_settings(cursor, key, value):
+    create_tables(cursor)
+
     insert_statement = """INSERT INTO settings(key, value)
                           VALUES (?,?)
                           ON CONFLICT (key)
@@ -186,6 +189,8 @@ def get_settings(key):
     try:
         with sqlite3.connect(db_path) as conn:
             cursor = conn.cursor()
+
+            create_tables(cursor)
 
             get_statement = """SELECT value
                             FROM settings

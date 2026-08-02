@@ -32,8 +32,6 @@ class ScanWorker(QObject):
                 songs_count = database.get_songs_count()
                 artists_count = database.get_artists_count()
 
-                print(songs_count, artists_count)
-
                 self.finished.emit(songs_count, artists_count)
 
             elif self.mode == "background":
@@ -55,8 +53,6 @@ class ScanWorker(QObject):
                 database.update_database(new_songs_data = new_songs_data, removed_paths = removed_paths)
                 songs_count = database.get_songs_count()
                 artists_count = database.get_artists_count()
-
-                print(songs_count, artists_count)
 
                 self.finished.emit(songs_count, artists_count)
 
@@ -87,6 +83,7 @@ class SonusApplication(QObject):
     def import_library(self, folder):
         self.popup.submit_button.setEnabled(False)
         self.popup.submit_button.setText("Scanning...")
+        self.window.update_topbar(scanning = True)
 
         try:
             database.initialize_database(folder = folder)
@@ -94,6 +91,7 @@ class SonusApplication(QObject):
         except Exception:
             self.popup.submit_button.setEnabled(True)
             self.popup.submit_button.setText("Submit")
+            self.window.update_topbar(scanning = False)
             return
 
         self.scan_thread = QThread()
@@ -110,6 +108,8 @@ class SonusApplication(QObject):
         self.scan_thread.start()
 
     def background_scan(self, folder):
+        self.window.update_topbar(scanning = True)
+        
         self.scan_thread = QThread()
         self.scan_worker = ScanWorker(folder, mode = "background")
         self.scan_worker.moveToThread(self.scan_thread)
@@ -127,14 +127,15 @@ class SonusApplication(QObject):
         self.popup.submit_button.setText("Submit")
         self.popup.close()
 
-        self.window.update_topbar(songs_count, artists_count)
+        self.window.update_topbar(songs_count, artists_count, scanning = False)
 
     def on_import_error(self, message):
         self.popup.submit_button.setEnabled(True)
         self.popup.submit_button.setText("Submit")
+        self.window.update_topbar(scanning = False)
 
     def on_scan_finished(self, songs_count, artists_count):
-        self.window.update_topbar(songs_count, artists_count)
+        self.window.update_topbar(songs_count, artists_count, scanning = False)
 
     def run(self):
         self.application.exec()
