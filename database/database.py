@@ -115,6 +115,66 @@ def delete_song(cursor, path):
                           WHERE path = ?"""
     cursor.execute(delete_statement, (path,))
 
+def get_songs_count():
+    try:
+        with sqlite3.connect(db_path) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT COUNT(*) AS TotalRows FROM songs")
+            return cursor.fetchone()[0]
+    
+    except sqlite3.OperationalError as e:
+        print(f"error happened: {e}")
+
+def get_artists_count():
+    try:
+        with sqlite3.connect(db_path) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT COUNT(*) AS TotalRows FROM artists")
+            return cursor.fetchone()[0]
+    
+    except sqlite3.OperationalError as e:
+        print(f"error happened: {e}")
+
+def get_all_song_paths():
+    try:
+        with sqlite3.connect(db_path) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT path FROM songs")
+
+            rows = cursor.fetchall()
+            
+            paths = []
+
+            for row in rows:
+                path = row[0]
+                paths.append(path)
+
+            return paths
+
+    except sqlite3.OperationalError as e:
+        print(f"error happened: {e}")
+
+def list_all_songs(cursor):
+    list_statement = """SELECT *
+                        FROM songs"""
+
+    cursor.execute(list_statement)
+    rows = cursor.fetchall()
+
+    for row in rows:
+        return row
+
+def list_songs_from_artist(cursor, artist):
+    list_statement = """SELECT *
+                        FROM songs
+                        WHERE artist = ?"""
+    
+    cursor.execute(list_statement, (artist,))
+    rows = cursor.fetchall()
+
+    for row in rows:
+        print(row)
+
 def insert_settings(cursor, key, value):
     insert_statement = """INSERT INTO settings(key, value)
                           VALUES (?,?)
@@ -140,39 +200,3 @@ def get_settings(key):
 
     except sqlite3.OperationalError as e:
         print(f"Error happened: {e}")
-
-def get_all_song_paths():
-    with sqlite3.connect(db_path) as conn:
-        cursor = conn.cursor()
-        cursor.execute("SELECT path FROM songs")
-
-        rows = cursor.fetchall()
-        
-        paths = []
-
-        for row in rows:
-            path = row[0]
-            paths.append(path)
-
-        return paths
-
-def list_all_songs(cursor):
-    list_statement = """SELECT *
-                        FROM songs"""
-
-    cursor.execute(list_statement)
-    rows = cursor.fetchall()
-
-    for row in rows:
-        return row
-
-def list_songs_from_artist(cursor, artist):
-    list_statement = """SELECT *
-                        FROM songs
-                        WHERE artist = ?"""
-    
-    cursor.execute(list_statement, (artist,))
-    rows = cursor.fetchall()
-
-    for row in rows:
-        print(row)

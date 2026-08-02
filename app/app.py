@@ -11,7 +11,7 @@ import os
 # background worker for scanning folders
 
 class ScanWorker(QObject):
-    finished = Signal(list, list)
+    finished = Signal(int, int)
     error = Signal(str)
 
     def __init__(self, folder, mode = "background"):
@@ -28,7 +28,13 @@ class ScanWorker(QObject):
 
             if self.mode == "manual":
                 database.initialize_database(songs_data)
-                self.finished.emit(songs_data)
+                
+                songs_count = database.get_songs_count()
+                artists_count = database.get_artists_count()
+
+                print(songs_count, artists_count)
+
+                self.finished.emit(songs_count, artists_count)
 
             elif self.mode == "background":
                 existing_paths = database.get_all_song_paths() 
@@ -47,8 +53,12 @@ class ScanWorker(QObject):
                 new_songs_data = [song for song in songs_data if os.path.abspath(song.get("path")) in new_paths]
 
                 database.update_database(new_songs_data = new_songs_data, removed_paths = removed_paths)
+                songs_count = database.get_songs_count()
+                artists_count = database.get_artists_count()
 
-                self.finished.emit(new_songs_data, removed_paths)
+                print(songs_count, artists_count)
+
+                self.finished.emit(songs_count, artists_count)
 
         except Exception as e:
             self.error.emit(str(e))
@@ -112,17 +122,19 @@ class SonusApplication(QObject):
 
         self.scan_thread.start()
 
-    def on_import_finished(self, songs_data):
+    def on_import_finished(self, songs_count, artists_count):
         self.popup.submit_button.setEnabled(True)
         self.popup.submit_button.setText("Submit")
         self.popup.close()
+
+        self.window.update_topbar(songs_count, artists_count)
 
     def on_import_error(self, message):
         self.popup.submit_button.setEnabled(True)
         self.popup.submit_button.setText("Submit")
 
-    def on_scan_finished(self, scanned_songs):
-        print("finished")
+    def on_scan_finished(self, songs_count, artists_count):
+        self.window.update_topbar(songs_count, artists_count)
 
     def run(self):
         self.application.exec()
