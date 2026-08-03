@@ -2,6 +2,10 @@ QMainWindow {
     background-color: #000000ff;
 }
 
+QScrollArea {
+    background-color: #000000ff;
+}
+
 QPushButton {
     font-family: "Comic Sans MS";
     background-color: #2b0cd8ff;
@@ -17,6 +21,11 @@ QLabel {
 QLabel#topBarLabel {
     font-family: "Arial";
     font-size: 16px;
+}
+
+QLabel#leftSideBarHeading {
+    font-family: "Arial Bold";
+    font-size: 20px;
 }
 
 QLineEdit {

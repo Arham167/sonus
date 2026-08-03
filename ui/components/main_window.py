@@ -1,6 +1,9 @@
-from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QSizePolicy
+from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel
 from PySide6.QtCore import QTimer, QEvent, Qt
 from ui.components.top_bar import TopBar
+from ui.components.left_sidebar import LeftSideBar
+from ui.components.library_view import LibraryView
+from ui.components.right_sidebar import RightSideBar
 
 class MainWindow(QMainWindow):
     def __init__(self, screen):
@@ -17,10 +20,31 @@ class MainWindow(QMainWindow):
         self.container = QWidget()
 
         outer_layout = QVBoxLayout(self.container)
-        
+        inner_layout = QHBoxLayout()
+        inner_left_layout = QVBoxLayout()
+        inner_mid_layout = QVBoxLayout()
+        inner_right_layout = QVBoxLayout()
+
         self.top_bar = TopBar()
         outer_layout.addWidget(self.top_bar)
-        outer_layout.addStretch(1)
+
+        self.left_sidebar = LeftSideBar()
+        inner_left_layout.addWidget(self.left_sidebar)
+
+        self.library_view = LibraryView()
+        inner_mid_layout.addWidget(self.library_view)
+
+        self.right_sidebar = RightSideBar()
+        inner_right_layout.addWidget(self.right_sidebar)
+
+        inner_layout.addLayout(inner_left_layout)
+        inner_layout.setStretchFactor(inner_left_layout, 0.5)
+        inner_layout.addLayout(inner_mid_layout)
+        inner_layout.setStretchFactor(inner_mid_layout, 3)
+        inner_layout.addLayout(inner_right_layout)
+        inner_layout.setStretchFactor(inner_right_layout, 1)
+
+        outer_layout.addLayout(inner_layout)
 
         self.setCentralWidget(self.container)
 
