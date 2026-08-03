@@ -23,24 +23,35 @@ class TopBar(QWidget):
         pixmap = QPixmap(os.path.join(icons_path, "artists_icon.svg"))
         self.artists_icon.setPixmap(pixmap.scaled(20, 20, Qt.KeepAspectRatio, Qt.SmoothTransformation))
 
+        self.name_label = QLabel("SONUS")
+        self.name_label.setObjectName("topBarLabel")
+
         self.scan_status_label = QLabel("Library up to date")
         self.scan_status_label.setObjectName("topBarLabel")
+        success_pixmap = QPixmap(os.path.join(icons_path, "scan_success_icon.svg"))
+        scanning_pixmap = QPixmap(os.path.join(icons_path, "scanning_icon.svg"))
+        self.success_pixmap = success_pixmap.scaled(20, 20, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        self.scanning_pixmap = scanning_pixmap.scaled(20, 20, Qt.KeepAspectRatio, Qt.SmoothTransformation)  
         self.scan_status_icon = QLabel()
-        pixmap = QPixmap(os.path.join(icons_path, "scan_success_icon.svg"))
-        self.scan_status_icon.setPixmap(pixmap.scaled(20, 20, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        self.scan_status_icon.setPixmap(self.success_pixmap)
 
         outer_layout = QHBoxLayout()
-        inner_layout = QHBoxLayout()
+        left_layout = QHBoxLayout()
+        right_layout = QHBoxLayout()
 
-        inner_layout.addWidget(self.songs_icon)
-        inner_layout.addWidget(self.songs_count_label)
-        inner_layout.addWidget(self.artists_icon)
-        inner_layout.addWidget(self.artists_count_label)
-        inner_layout.addStretch(1)
-        inner_layout.addWidget(self.scan_status_icon)
-        inner_layout.addWidget(self.scan_status_label)
+        left_layout.addWidget(self.songs_icon)
+        left_layout.addWidget(self.songs_count_label)
+        left_layout.addWidget(self.artists_icon)
+        left_layout.addWidget(self.artists_count_label)
 
-        outer_layout.addLayout(inner_layout)
+        right_layout.addWidget(self.scan_status_icon)
+        right_layout.addWidget(self.scan_status_label)
+
+        outer_layout.addLayout(left_layout)
+        outer_layout.addStretch(1)
+        outer_layout.addWidget(self.name_label, 0, Qt.AlignCenter)
+        outer_layout.addStretch(1)
+        outer_layout.addLayout(right_layout)
 
         self.setLayout(outer_layout)
 
@@ -51,10 +62,8 @@ class TopBar(QWidget):
     def update_status(self, scanning = False):
         if scanning is True:
             self.scan_status_label.setText("Scanning...")
-            pixmap = QPixmap(os.path.join(icons_path, "scanning_icon.svg"))
-            self.scan_status_icon.setPixmap(pixmap.scaled(20, 20, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+            self.scan_status_icon.setPixmap(self.scanning_pixmap)
 
         elif scanning is False:
             self.scan_status_label.setText("Library up to date")
-            pixmap = QPixmap(os.path.join(icons_path, "scan_success_icon.svg"))
-            self.scan_status_icon.setPixmap(pixmap.scaled(20, 20, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+            self.scan_status_icon.setPixmap(self.success_pixmap)
