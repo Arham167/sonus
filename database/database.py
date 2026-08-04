@@ -176,6 +176,25 @@ def list_songs_from_artist(cursor, artist):
     for row in rows:
         print(row)
 
+def list_all_artists():
+    try:
+        with sqlite3.connect(db_path) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM artists")
+
+            rows = cursor.fetchall()
+            
+            artists = []
+
+            for row in rows:
+                artists.append(row)
+
+            return artists
+
+    except sqlite3.OperationalError as e:
+        print(f"error happened: {e}")
+
+
 def insert_settings(cursor, key, value):
     create_tables(cursor)
 

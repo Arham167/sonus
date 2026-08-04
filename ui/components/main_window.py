@@ -1,11 +1,13 @@
 from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel
-from PySide6.QtCore import QTimer, QEvent, Qt
+from PySide6.QtCore import QTimer, QEvent, Qt, Signal
 from ui.components.top_bar import TopBar
 from ui.components.left_sidebar import LeftSideBar
 from ui.components.library_view import LibraryView
 from ui.components.right_sidebar import RightSideBar
 
 class MainWindow(QMainWindow):
+    artist_selected = Signal(str)
+
     def __init__(self, screen):
         super().__init__()
         self.setWindowTitle("Sonus")
@@ -30,6 +32,7 @@ class MainWindow(QMainWindow):
 
         self.left_sidebar = LeftSideBar()
         inner_left_layout.addWidget(self.left_sidebar)
+        self.left_sidebar.artist_selected.connect(self.handle_artist_selection)
 
         self.library_view = LibraryView()
         inner_mid_layout.addWidget(self.library_view)
@@ -38,7 +41,7 @@ class MainWindow(QMainWindow):
         inner_right_layout.addWidget(self.right_sidebar)
 
         inner_layout.addLayout(inner_left_layout)
-        inner_layout.setStretchFactor(inner_left_layout, 0.5)
+        inner_layout.setStretchFactor(inner_left_layout, 1)
         inner_layout.addLayout(inner_mid_layout)
         inner_layout.setStretchFactor(inner_mid_layout, 3)
         inner_layout.addLayout(inner_right_layout)
@@ -63,3 +66,9 @@ class MainWindow(QMainWindow):
     def update_topbar(self, songs_count = 0, artists_count = 0, scanning = False):
         self.top_bar.update_counts(songs_count, artists_count)
         self.top_bar.update_status(scanning)
+
+    def update_left_sidebar(self, artists):
+        self.left_sidebar.populate_artists(artists)
+
+    def handle_artist_selection(self, artist_id):
+        self.artist_selected.emit(artist_id)

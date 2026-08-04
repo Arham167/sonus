@@ -68,6 +68,7 @@ class SonusApplication(QObject):
         screen = self.application.primaryScreen()
 
         self.window = main_window.MainWindow(screen)
+        self.window.artist_selected.connect(self.handle_artist_selection)
         self.window.showMaximized()
 
         folder = database.get_settings("music_folder")
@@ -128,6 +129,7 @@ class SonusApplication(QObject):
         self.popup.close()
 
         self.window.update_topbar(songs_count, artists_count, scanning = False)
+        self.get_artists_from_db()
 
     def on_import_error(self, message):
         self.popup.submit_button.setEnabled(True)
@@ -136,6 +138,14 @@ class SonusApplication(QObject):
 
     def on_scan_finished(self, songs_count, artists_count):
         self.window.update_topbar(songs_count, artists_count, scanning = False)
+        self.get_artists_from_db()
+
+    def get_artists_from_db(self):
+        artists = database.list_all_artists()
+        self.window.update_left_sidebar(artists)
+
+    def handle_artist_selection(self, artist_id):
+        print(artist_id)
 
     def run(self):
         self.application.exec()

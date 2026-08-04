@@ -49,7 +49,7 @@ class TopBar(QWidget):
 
         outer_layout.addLayout(left_layout)
         outer_layout.addStretch(1)
-        outer_layout.addWidget(self.name_label, 0, Qt.AlignCenter)
+        outer_layout.addWidget(self.name_label, alignment = Qt.AlignCenter)
         outer_layout.addStretch(1)
         outer_layout.addLayout(right_layout)
 
