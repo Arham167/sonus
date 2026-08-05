@@ -145,7 +145,10 @@ class SonusApplication(QObject):
         self.window.update_left_sidebar(artists)
 
     def handle_artist_selection(self, artist_id):
-        print(artist_id)
+        if artist_id == "all":
+            database.get_all_songs()
+        else:
+            database.get_songs_from_artist(artist_id)
 
     def run(self):
         self.application.exec()

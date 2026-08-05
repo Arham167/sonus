@@ -21,6 +21,12 @@ class LeftSideBar(QScrollArea):
         self.setLayout(outer_layout)
 
     def populate_artists(self, artists):
+        all_artists_button = QPushButton("All Artists")
+        all_artists_button.setObjectName("leftSideBarButton")
+        all_artists_button.clicked.connect(lambda checked = False, artist_id = "all": self.artist_selected.emit(artist_id))
+
+        self.artist_layout.addWidget(all_artists_button, alignment = Qt.AlignLeft)
+
         for artist in artists:
             button = QPushButton(artist[1])
             button.setObjectName("leftSideBarButton")

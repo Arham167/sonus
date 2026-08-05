@@ -23,8 +23,6 @@ def initialize_database(songs_data = None, folder = None):
 
                     add_song(cursor, name, artist, feat_artists, path)
 
-                    time.sleep(0.001)
-
     except sqlite3.OperationalError as e:
         print(f"error happened: {e}")
 
@@ -155,27 +153,6 @@ def get_all_song_paths():
     except sqlite3.OperationalError as e:
         print(f"error happened: {e}")
 
-def list_all_songs(cursor):
-    list_statement = """SELECT *
-                        FROM songs"""
-
-    cursor.execute(list_statement)
-    rows = cursor.fetchall()
-
-    for row in rows:
-        return row
-
-def list_songs_from_artist(cursor, artist):
-    list_statement = """SELECT *
-                        FROM songs
-                        WHERE artist = ?"""
-    
-    cursor.execute(list_statement, (artist,))
-    rows = cursor.fetchall()
-
-    for row in rows:
-        print(row)
-
 def list_all_artists():
     try:
         with sqlite3.connect(db_path) as conn:
@@ -194,6 +171,46 @@ def list_all_artists():
     except sqlite3.OperationalError as e:
         print(f"error happened: {e}")
 
+def get_all_songs():
+    try:
+        with sqlite3.connect(db_path) as conn:
+            cursor = conn.cursor()
+
+            get_statement = """SELECT * FROM songs"""
+
+            cursor.execute(get_statement)
+            rows = cursor.fetchall()
+
+            for row in rows:
+                print(row)
+
+    except sqlite3.OperationalError as e:
+        print(f"error happened: {e}")
+
+def get_songs_from_artist(artist_id):
+    try:
+        with sqlite3.connect(db_path) as conn:
+            cursor = conn.cursor()
+
+            get_statement = """SELECT * FROM songs WHERE artist = ?"""
+
+            cursor.execute(get_statement, (artist_id,))
+            rows = cursor.fetchall()
+
+            for row in rows:
+                print(row)
+
+            get_artist_from_id(cursor, artist_id)
+
+    except sqlite3.OperationalError as e:
+        print(f"error happened: {e}")
+
+def get_artist_from_id(cursor, artist_id):
+        get_statement = """SELECT artist_name FROM artists WHERE artist_id = ?"""
+
+        cursor.execute(get_statement, (artist_id,))
+        artist = cursor.fetchone()
+        print(artist)
 
 def insert_settings(cursor, key, value):
     create_tables(cursor)
