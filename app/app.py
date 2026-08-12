@@ -148,7 +148,10 @@ class SonusApplication(QObject):
         if artist_id == "all":
             database.get_all_songs()
         else:
-            database.get_songs_from_artist(artist_id)
+            rows = database.get_songs_from_artist(artist_id)
+            artist = database.get_artist_from_id(artist_id)
+
+            self.window.update_library_view(artist, rows)
 
     def run(self):
         self.application.exec()

@@ -191,26 +191,27 @@ def get_songs_from_artist(artist_id):
     try:
         with sqlite3.connect(db_path) as conn:
             cursor = conn.cursor()
-
             get_statement = """SELECT * FROM songs WHERE artist = ?"""
-
             cursor.execute(get_statement, (artist_id,))
             rows = cursor.fetchall()
 
-            for row in rows:
-                print(row)
-
-            get_artist_from_id(cursor, artist_id)
+            return rows
 
     except sqlite3.OperationalError as e:
         print(f"error happened: {e}")
 
-def get_artist_from_id(cursor, artist_id):
-        get_statement = """SELECT artist_name FROM artists WHERE artist_id = ?"""
+def get_artist_from_id(artist_id):
+    try:
+        with sqlite3.connect(db_path) as conn:
+            cursor = conn.cursor()
+            get_statement = """SELECT artist_name FROM artists WHERE artist_id = ?"""
+            cursor.execute(get_statement, (artist_id,))
+            artist = cursor.fetchone()
 
-        cursor.execute(get_statement, (artist_id,))
-        artist = cursor.fetchone()
-        print(artist)
+            return artist
+
+    except sqlite3.OperationalError as e:
+        print(f"error happened: {e}")
 
 def insert_settings(cursor, key, value):
     create_tables(cursor)

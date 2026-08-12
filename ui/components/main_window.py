@@ -72,3 +72,6 @@ class MainWindow(QMainWindow):
 
     def handle_artist_selection(self, artist_id):
         self.artist_selected.emit(artist_id)
+
+    def update_library_view(self, artist, songs):
+        self.library_view.display_songs(artist, songs)

@@ -3,7 +3,21 @@ QMainWindow {
 }
 
 QScrollArea {
-    background-color: #000000ff;
+    background: #000000ff;
+}
+
+QScrollBar:vertical {
+    background: transparent;
+    width: 10px;
+}
+
+QScrollBar::handle:vertical {
+    background: rgba(255,255,255,0.4);
+    border-radius: 5px;
+}
+
+QWidget#libraryContent {
+    background: #000000ff;
 }
 
 QPushButton {
@@ -13,6 +27,13 @@ QPushButton {
 }
 
 QPushButton#leftSideBarButton {
+    font-family: Arial;
+    background: transparent;
+    border: none;
+    font-size: 18px;
+}
+
+QPushButton#libraryViewSongButton {
     font-family: Arial;
     background: transparent;
     border: none;
@@ -31,6 +52,11 @@ QLabel#topBarLabel {
 }
 
 QLabel#leftSideBarHeading {
+    font-family: "Arial Bold";
+    font-size: 20px;
+}
+
+QLabel#libraryViewArtistLabel {
     font-family: "Arial Bold";
     font-size: 20px;
 }
