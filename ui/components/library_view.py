@@ -25,7 +25,7 @@ class LibraryView(QScrollArea):
 
         self.setWidget(self.content)
 
-    def display_songs(self, artist, songs):
+    def display_songs_from_artist(self, artist, songs):
         while self.songs_layout.count():
             item = self.songs_layout.takeAt(0)
             if item.widget():
@@ -36,6 +36,23 @@ class LibraryView(QScrollArea):
         self.songs_layout.addWidget(artist_label)
 
         for song in songs:
-            btn = QPushButton(song[1])
-            btn.setObjectName("libraryViewSongButton")
-            self.songs_layout.addWidget(btn)
+            button = QPushButton(song[1])
+            button.setObjectName("libraryViewSongButton")
+            self.songs_layout.addWidget(button)
+
+    def display_all_songs(self, artists, songs):
+        while self.songs_layout.count():
+            item = self.songs_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+
+        for artist in artists:
+            label = QLabel(artist[1])
+            label.setObjectName("libraryViewArtistLabel")
+            self.songs_layout.addWidget(label)        
+
+            for song in songs:
+                if song[2] == artist[0]:
+                    button = QPushButton(song[1])
+                    button.setObjectName("libraryViewSongButton")
+                    self.songs_layout.addWidget(button)

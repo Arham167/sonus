@@ -181,8 +181,7 @@ def get_all_songs():
             cursor.execute(get_statement)
             rows = cursor.fetchall()
 
-            for row in rows:
-                print(row)
+            return rows
 
     except sqlite3.OperationalError as e:
         print(f"error happened: {e}")
