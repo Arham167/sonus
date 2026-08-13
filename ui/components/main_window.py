@@ -4,6 +4,7 @@ from ui.components.top_bar import TopBar
 from ui.components.left_sidebar import LeftSideBar
 from ui.components.library_view import LibraryView
 from ui.components.right_sidebar import RightSideBar
+from ui.components.playback_bar import PlaybackBar
 
 class MainWindow(QMainWindow):
     artist_selected = Signal(str)
@@ -48,6 +49,9 @@ class MainWindow(QMainWindow):
         inner_layout.setStretchFactor(inner_right_layout, 1)
 
         outer_layout.addLayout(inner_layout)
+
+        self.playback_bar = PlaybackBar()
+        outer_layout.addWidget(self.playback_bar)
 
         self.setCentralWidget(self.container)
 
