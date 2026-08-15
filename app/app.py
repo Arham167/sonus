@@ -3,9 +3,11 @@
 from database import database
 from backend.scanner import scan_folder
 from backend.extractor import extract_songs
+from backend.playback import play_song, pause_song
 from ui import app
-from ui.components import main_window, scan_folder_popup
-from PySide6.QtCore import QTimer, QThread, QObject, Signal, Slot
+from ui.components import main_window, scan_folder_popup, playback_bar
+from PySide6.QtCore import QTimer, QThread, QObject, Signal, Slot, QUrl
+from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
 import os
 
 # background worker for scanning folders
@@ -69,7 +71,13 @@ class SonusApplication(QObject):
 
         self.window = main_window.MainWindow(screen)
         self.window.artist_selected.connect(self.handle_artist_selection)
+        self.window.song_selected.connect(self.handle_song_selection)
+        self.window.play_pause.connect(self.handle_playback)
         self.window.showMaximized()
+
+        self.player = QMediaPlayer()
+        self.audio_output = QAudioOutput()
+        self.player.setAudioOutput(self.audio_output)
 
         folder = database.get_settings("music_folder")
 
@@ -155,6 +163,21 @@ class SonusApplication(QObject):
             artist = database.get_artist_from_id(artist_id)
 
             self.window.update_library_view_single(artist, songs)
+
+    def handle_song_selection(self, path):
+        play_song(self.player, path)
+        self.is_playing = True
+        self.window.update_playback_state(self.is_playing)
+
+    def handle_playback(self):
+        if self.player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
+            self.player.pause()
+            self.is_playing = False
+        else:
+            if self.player.source() is not None and not self.player.source().isEmpty():
+                self.player.play()
+                self.is_playing = True
+        self.window.update_playback_state(self.is_playing)
 
     def run(self):
         self.application.exec()

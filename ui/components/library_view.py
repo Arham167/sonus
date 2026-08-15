@@ -1,7 +1,10 @@
 from PySide6.QtWidgets import QScrollArea, QWidget, QVBoxLayout, QLabel, QPushButton
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Signal
+from ui.components.song_button import SongButton
 
 class LibraryView(QScrollArea):
+    song_selected = Signal(str)
+
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -36,8 +39,9 @@ class LibraryView(QScrollArea):
         self.songs_layout.addWidget(artist_label)
 
         for song in songs:
-            button = QPushButton(song[1])
+            button = SongButton(song[1], song[4])
             button.setObjectName("libraryViewSongButton")
+            button.doubleClicked.connect(lambda path: self.song_selected.emit(path))
             self.songs_layout.addWidget(button)
 
     def display_all_songs(self, artists, songs):
@@ -53,6 +57,7 @@ class LibraryView(QScrollArea):
 
             for song in songs:
                 if song[2] == artist[0]:
-                    button = QPushButton(song[1])
+                    button = SongButton(song[1], song[4])
                     button.setObjectName("libraryViewSongButton")
+                    button.doubleClicked.connect(lambda path: self.song_selected.emit(path))
                     self.songs_layout.addWidget(button)

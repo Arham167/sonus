@@ -8,6 +8,8 @@ from ui.components.playback_bar import PlaybackBar
 
 class MainWindow(QMainWindow):
     artist_selected = Signal(str)
+    song_selected = Signal(str)
+    play_pause = Signal()
 
     def __init__(self, screen):
         super().__init__()
@@ -37,6 +39,7 @@ class MainWindow(QMainWindow):
 
         self.library_view = LibraryView()
         inner_mid_layout.addWidget(self.library_view)
+        self.library_view.song_selected.connect(self.handle_song_selection)
 
         self.right_sidebar = RightSideBar()
         inner_right_layout.addWidget(self.right_sidebar)
@@ -52,6 +55,7 @@ class MainWindow(QMainWindow):
 
         self.playback_bar = PlaybackBar()
         outer_layout.addWidget(self.playback_bar)
+        self.playback_bar.play_pause_signal.connect(self.handle_play_pause)
 
         self.setCentralWidget(self.container)
 
@@ -82,3 +86,12 @@ class MainWindow(QMainWindow):
 
     def update_library_view_all(self, artists, songs):
         self.library_view.display_all_songs(artists, songs)
+
+    def handle_song_selection(self, path):
+        self.song_selected.emit(path)
+
+    def update_playback_state(self, is_playing = False):
+        self.playback_bar.update_playback_icon(is_playing)
+
+    def handle_play_pause(self):
+        self.play_pause.emit()
