@@ -19,7 +19,7 @@ class PlaybackBar(QWidget):
         self.play_button.setFlat(True)
         self.play_button.clicked.connect(self.handle_button_click)
 
-        self.info_label = QLabel("", alignment = Qt.AlignCenter)
+        self.info_label = QLabel("Not Playing", alignment = Qt.AlignCenter)
 
         outer_layout = QVBoxLayout()
         control_layout = QHBoxLayout()

@@ -28,6 +28,16 @@ class LibraryView(QScrollArea):
 
         self.setWidget(self.content)
 
+    @staticmethod
+    def format_song_display_name(song):
+        song_name = song[1].rsplit(".", 1)[0] if "." in song[1] else song[1]
+        feat_artist = song[3]
+
+        if feat_artist and feat_artist != "NULL":
+            return f"{song_name} ft. {feat_artist}"
+
+        return song_name
+
     def display_songs_from_artist(self, artist, songs):
         while self.songs_layout.count():
             item = self.songs_layout.takeAt(0)
@@ -39,7 +49,7 @@ class LibraryView(QScrollArea):
         self.songs_layout.addWidget(artist_label)
 
         for song in songs:
-            button = SongButton(song[1], song[4])
+            button = SongButton(self.format_song_display_name(song), song[4])
             button.setObjectName("libraryViewSongButton")
             button.doubleClicked.connect(lambda path: self.song_selected.emit(path))
             self.songs_layout.addWidget(button)
@@ -53,11 +63,11 @@ class LibraryView(QScrollArea):
         for artist in artists:
             label = QLabel(artist[1])
             label.setObjectName("libraryViewArtistLabel")
-            self.songs_layout.addWidget(label)        
+            self.songs_layout.addWidget(label)
 
             for song in songs:
                 if song[2] == artist[0]:
-                    button = SongButton(song[1], song[4])
+                    button = SongButton(self.format_song_display_name(song), song[4])
                     button.setObjectName("libraryViewSongButton")
                     button.doubleClicked.connect(lambda path: self.song_selected.emit(path))
                     self.songs_layout.addWidget(button)

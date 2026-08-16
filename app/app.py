@@ -156,12 +156,10 @@ class SonusApplication(QObject):
         if artist_id == "all":
             songs = database.get_all_songs()
             artists = database.list_all_artists()
-
             self.window.update_library_view_all(artists, songs)
         else:
             songs = database.get_songs_from_artist(artist_id)
             artist = database.get_artist_from_id(artist_id)
-
             self.window.update_library_view_single(artist, songs)
 
     def handle_song_double_click(self, path):

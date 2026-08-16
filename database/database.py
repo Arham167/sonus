@@ -212,6 +212,19 @@ def get_artist_from_id(artist_id):
     except sqlite3.OperationalError as e:
         print(f"error happened: {e}")
 
+def get_featuring_artists(path):
+    try:
+        with sqlite3.connect(db_path) as conn:
+            cursor = conn.cursor()
+            get_statement = """SELECT featuring_artists FROM songs WHERE path = ?"""
+            cursor.execute(get_statement, (path,))
+            feat_artist = cursor.fetchone()
+
+            return feat_artist[0]
+
+    except sqlite3.OperationalError as e:
+        print(f"error happened: {e}")
+
 def get_song_and_artist_from_path(path):
     try:
         with sqlite3.connect(db_path) as conn:
