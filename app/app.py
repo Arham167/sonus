@@ -94,12 +94,17 @@ class SonusApplication(QObject):
         self.popup.submit_button.setText("Scanning...")
         self.window.update_topbar(scanning = True)
 
+        self.window.left_sidebar.artist_button.setEnabled(False)
+        self.window.left_sidebar.playlist_button.setEnabled(False)
+
         try:
             database.initialize_database(folder = folder)
             
         except Exception:
             self.popup.submit_button.setEnabled(True)
             self.popup.submit_button.setText("Submit")
+            self.window.left_sidebar.artist_button.setEnabled(True)
+            self.window.left_sidebar.playlist_button.setEnabled(True)
             self.window.update_topbar(scanning = False)
             return
 
@@ -118,6 +123,8 @@ class SonusApplication(QObject):
 
     def background_scan(self, folder):
         self.window.update_topbar(scanning = True)
+        self.window.left_sidebar.artist_button.setEnabled(False)
+        self.window.left_sidebar.playlist_button.setEnabled(False)
         
         self.scan_thread = QThread()
         self.scan_worker = ScanWorker(folder, mode = "background")
@@ -136,16 +143,26 @@ class SonusApplication(QObject):
         self.popup.submit_button.setText("Submit")
         self.popup.close()
 
+        self.window.left_sidebar.artist_button.setEnabled(True)
+        self.window.left_sidebar.playlist_button.setEnabled(True)
+
         self.window.update_topbar(songs_count, artists_count, scanning = False)
         self.get_artists_from_db()
 
     def on_import_error(self, message):
         self.popup.submit_button.setEnabled(True)
         self.popup.submit_button.setText("Submit")
+        
+        self.window.left_sidebar.artist_button.setEnabled(True)
+        self.window.left_sidebar.playlist_button.setEnabled(True)
+
         self.window.update_topbar(scanning = False)
 
     def on_scan_finished(self, songs_count, artists_count):
         self.window.update_topbar(songs_count, artists_count, scanning = False)
+        self.window.left_sidebar.artist_button.setEnabled(True)
+        self.window.left_sidebar.playlist_button.setEnabled(True)
+        
         self.get_artists_from_db()
 
     def get_artists_from_db(self):

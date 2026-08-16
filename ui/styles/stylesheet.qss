@@ -20,6 +20,10 @@ QWidget#libraryContent {
     background: #000000ff;
 }
 
+QWidget#leftSideBarContent {
+    background: #000000ff;
+}
+
 QPushButton {
     font-family: "Comic Sans MS";
     background-color: #2b0cd8ff;
