@@ -39,7 +39,7 @@ class MainWindow(QMainWindow):
 
         self.library_view = LibraryView()
         inner_mid_layout.addWidget(self.library_view)
-        self.library_view.song_selected.connect(self.handle_song_selection)
+        self.library_view.song_selected.connect(self.handle_song_double_click)
 
         self.right_sidebar = RightSideBar()
         inner_right_layout.addWidget(self.right_sidebar)
@@ -87,7 +87,7 @@ class MainWindow(QMainWindow):
     def update_library_view_all(self, artists, songs):
         self.library_view.display_all_songs(artists, songs)
 
-    def handle_song_selection(self, path):
+    def handle_song_double_click(self, path):
         self.song_selected.emit(path)
 
     def update_playback_state(self, is_playing = False):
@@ -95,3 +95,6 @@ class MainWindow(QMainWindow):
 
     def handle_play_pause(self):
         self.play_pause.emit()
+
+    def update_playback_label(self, song, artist, feat_artists):
+        self.playback_bar.update_playback_label(song, artist, feat_artists)

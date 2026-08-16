@@ -71,7 +71,7 @@ class SonusApplication(QObject):
 
         self.window = main_window.MainWindow(screen)
         self.window.artist_selected.connect(self.handle_artist_selection)
-        self.window.song_selected.connect(self.handle_song_selection)
+        self.window.song_selected.connect(self.handle_song_double_click)
         self.window.play_pause.connect(self.handle_playback)
         self.window.showMaximized()
 
@@ -164,10 +164,13 @@ class SonusApplication(QObject):
 
             self.window.update_library_view_single(artist, songs)
 
-    def handle_song_selection(self, path):
+    def handle_song_double_click(self, path):
         play_song(self.player, path)
         self.is_playing = True
         self.window.update_playback_state(self.is_playing)
+
+        song, artist, feat_artists = database.get_song_and_artist_from_path(path)
+        self.window.update_playback_label(song, artist, feat_artists)
 
     def handle_playback(self):
         if self.player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:

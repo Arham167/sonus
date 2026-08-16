@@ -1,5 +1,5 @@
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QPushButton
-from PySide6.QtCore import Signal
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QLabel
+from PySide6.QtCore import Signal, Qt
 from PySide6.QtGui import QIcon
 import os
 
@@ -10,7 +10,7 @@ icons_path = os.path.join(assets_path, "icons")
 class PlaybackBar(QWidget):
     play_pause_signal = Signal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent = None):
         super().__init__(parent)
 
         self.play_button = QPushButton()
@@ -19,14 +19,15 @@ class PlaybackBar(QWidget):
         self.play_button.setFlat(True)
         self.play_button.clicked.connect(self.handle_button_click)
 
-        outer_layout = QHBoxLayout()
+        self.info_label = QLabel("", alignment = Qt.AlignCenter)
+
+        outer_layout = QVBoxLayout()
         control_layout = QHBoxLayout()
 
         control_layout.addWidget(self.play_button)
 
-        outer_layout.addStretch()
+        outer_layout.addWidget(self.info_label)
         outer_layout.addLayout(control_layout)
-        outer_layout.addStretch()
 
         self.setLayout(outer_layout)
 
@@ -38,3 +39,9 @@ class PlaybackBar(QWidget):
             self.play_button.setIcon(QIcon(os.path.join(icons_path, "pause_icon.svg")))
         else:
             self.play_button.setIcon(QIcon(os.path.join(icons_path, "play_icon.svg")))
+
+    def update_playback_label(self, song, artist, feat_artists):
+        if feat_artists != "NULL":
+            self.info_label.setText(f"{artist} - {song} ft. {feat_artists}")
+        else:
+            self.info_label.setText(f"{artist} - {song}")
