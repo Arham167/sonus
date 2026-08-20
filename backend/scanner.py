@@ -1,10 +1,11 @@
 import os, time
 
 def scan_folder(folder):
+    allowed_extensions = [".mp3", ]
     songs = []
-    for root, dirs, filenames in os.walk(folder):
+    for root, _, filenames in os.walk(folder):
         for filename in filenames:
-            if os.path.splitext(filename)[1].lower() == ".mp3":
+            if os.path.splitext(filename)[1].lower() in allowed_extensions:
                 songs.append(os.path.join(root, filename))
                 time.sleep(0.001)
 
