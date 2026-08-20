@@ -78,6 +78,7 @@ class SonusApplication(QObject):
         self.player = QMediaPlayer()
         self.audio_output = QAudioOutput()
         self.player.setAudioOutput(self.audio_output)
+        self.player.playbackStateChanged.connect(self.on_playback_state_changed)
 
         folder = database.get_settings("music_folder")
 
@@ -188,13 +189,16 @@ class SonusApplication(QObject):
         self.window.update_playback_label(song, artist, feat_artists)
 
     def handle_playback(self):
-        if self.player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
+        playing_state = QMediaPlayer.PlaybackState.PlayingState
+
+        if self.player.playbackState() == playing_state:
             self.player.pause()
-            self.is_playing = False
-        else:
-            if self.player.source() is not None and not self.player.source().isEmpty():
-                self.player.play()
-                self.is_playing = True
+        elif self.player.source().isValid():
+            self.player.play()
+
+    def on_playback_state_changed(self, state):
+        playing_state = QMediaPlayer.PlaybackState.PlayingState
+        self.is_playing = state == playing_state
         self.window.update_playback_state(self.is_playing)
 
     def run(self):

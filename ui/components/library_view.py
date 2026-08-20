@@ -31,6 +31,7 @@ class LibraryView(QScrollArea):
     @staticmethod
     def format_song_display_name(song):
         song_name = song[1].rsplit(".", 1)[0] if "." in song[1] else song[1]
+        song_name = song_name.replace("&", "&&")
         feat_artist = song[3]
 
         if feat_artist and feat_artist != "NULL":
