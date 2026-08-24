@@ -79,6 +79,8 @@ class SonusApplication(QObject):
         self.audio_output = QAudioOutput()
         self.player.setAudioOutput(self.audio_output)
         self.player.playbackStateChanged.connect(self.on_playback_state_changed)
+        self.player.durationChanged.connect(self.on_duration_changed)
+        self.player.positionChanged.connect(self.on_position_changed)
 
         folder = database.get_settings("music_folder")
 
@@ -188,6 +190,8 @@ class SonusApplication(QObject):
         song, artist, feat_artists = database.get_song_and_artist_from_path(path)
         self.window.update_playback_label(song, artist, feat_artists)
 
+        # self.window.update_seek_bar(1, self.player.durationChanged)
+
     def handle_playback(self):
         playing_state = QMediaPlayer.PlaybackState.PlayingState
 
@@ -200,6 +204,12 @@ class SonusApplication(QObject):
         playing_state = QMediaPlayer.PlaybackState.PlayingState
         self.is_playing = state == playing_state
         self.window.update_playback_state(self.is_playing)
+
+    def on_duration_changed(self, duration):
+        self.window.update_seek_bar_duration(duration)
+
+    def on_position_changed(self, position):
+        self.window.update_seek_bar_position(position)
 
     def run(self):
         self.application.exec()

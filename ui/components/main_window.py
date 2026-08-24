@@ -98,3 +98,9 @@ class MainWindow(QMainWindow):
 
     def update_playback_label(self, song, artist, feat_artists):
         self.playback_bar.update_playback_label(song, artist, feat_artists)
+
+    def update_seek_bar_duration(self, duration):
+        self.playback_bar.update_duration(duration)
+
+    def update_seek_bar_position(self, position):
+        self.playback_bar.update_position(position)

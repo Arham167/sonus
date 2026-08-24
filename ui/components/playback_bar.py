@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QLabel
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QLabel, QSlider
 from PySide6.QtCore import Signal, Qt
 from PySide6.QtGui import QIcon
 import os
@@ -9,6 +9,14 @@ icons_path = os.path.join(assets_path, "icons")
 
 class PlaybackBar(QWidget):
     play_pause_signal = Signal()
+
+    @staticmethod
+    def format_time(milliseconds):
+        total_seconds = milliseconds // 1000
+        minutes, seconds = divmod(total_seconds, 60)
+
+        return f"{minutes}:{seconds:02}"
+
 
     def __init__(self, parent = None):
         super().__init__(parent)
@@ -21,13 +29,24 @@ class PlaybackBar(QWidget):
 
         self.info_label = QLabel("Not Playing", alignment = Qt.AlignCenter)
 
+        self.slider = QSlider(Qt.Orientation.Horizontal)
+
+        self.elapsed_time_label = QLabel("0:00")
+        self.total_time_label = QLabel("0:00")
+
         outer_layout = QVBoxLayout()
         control_layout = QHBoxLayout()
+        seek_layout = QHBoxLayout()
 
         control_layout.addWidget(self.play_button)
 
+        seek_layout.addWidget(self.elapsed_time_label)
+        seek_layout.addWidget(self.slider)
+        seek_layout.addWidget(self.total_time_label)
+
         outer_layout.addWidget(self.info_label)
         outer_layout.addLayout(control_layout)
+        outer_layout.addLayout(seek_layout)
 
         self.setLayout(outer_layout)
 
@@ -45,3 +64,11 @@ class PlaybackBar(QWidget):
             self.info_label.setText(f"{artist} - {song} ft. {feat_artists}")
         else:
             self.info_label.setText(f"{artist} - {song}")
+
+    def update_duration(self, duration):
+        self.slider.setRange(0, duration)
+        self.total_time_label.setText(self.format_time(duration))
+
+    def update_position(self, position):
+        self.slider.setValue(position)
+        self.elapsed_time_label.setText(self.format_time(position))
