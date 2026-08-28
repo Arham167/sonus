@@ -52,7 +52,7 @@ class LibraryView(QScrollArea):
         for song in songs:
             button = SongButton(self.format_song_display_name(song), song[4])
             button.setObjectName("libraryViewSongButton")
-            button.doubleClicked.connect(lambda path: self.song_selected.emit(path))
+            button.song_play_requested.connect(lambda path: self.song_selected.emit(path))
             self.songs_layout.addWidget(button)
 
     def display_all_songs(self, artists, songs):
