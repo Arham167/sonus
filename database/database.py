@@ -171,6 +171,24 @@ def list_all_artists():
     except sqlite3.OperationalError as e:
         print(f"error happened: {e}")
 
+def list_all_playlists():
+    try:
+        with sqlite3.connect(db_path) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM playlists")
+
+            rows = cursor.fetchall()
+            
+            playlists = []
+
+            for row in rows:
+                playlists.append(row)
+
+            return playlists
+
+    except sqlite3.OperationalError as e:
+        print(f"error happened: {e}")
+
 def get_all_songs():
     try:
         with sqlite3.connect(db_path) as conn:

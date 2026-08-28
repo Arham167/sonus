@@ -172,6 +172,10 @@ class SonusApplication(QObject):
         artists = database.list_all_artists()
         self.window.update_left_sidebar(artists)
 
+    def get_playlists_from_db(self):
+        playlists = database.list_all_playlists()
+        self.window.update_left_sidebar(playlists)
+
     def handle_artist_selection(self, artist_id):
         if artist_id == "all":
             songs = database.get_all_songs()
@@ -189,8 +193,6 @@ class SonusApplication(QObject):
 
         song, artist, feat_artists = database.get_song_and_artist_from_path(path)
         self.window.update_playback_label(song, artist, feat_artists)
-
-        # self.window.update_seek_bar(1, self.player.durationChanged)
 
     def handle_playback(self):
         playing_state = QMediaPlayer.PlaybackState.PlayingState

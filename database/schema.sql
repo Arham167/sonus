@@ -21,3 +21,23 @@ CREATE TABLE IF NOT EXISTS settings (
                   key TEXT PRIMARY KEY,
                   value TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS playlists(
+                  playlist_id text PRIMARY KEY NOT NULL,
+                  name TEXT NOT NULL 
+);
+
+CREATE TABLE IF NOT EXISTS playlists_songs(
+                  playlist_id text NOT NULL,
+                  song_id text NOT NULL,
+
+                  PRIMARY KEY (playlist_id, song_id),
+
+                  FOREIGN KEY (playlist_id)
+                    REFERENCES playlists(playlist_id)
+                    ON DELETE CASCADE,
+
+                  FOREIGN KEY (song_id)
+                    REFERENCES songs(song_id)
+                    ON DELETE CASCADE
+);

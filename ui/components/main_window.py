@@ -75,8 +75,12 @@ class MainWindow(QMainWindow):
         self.top_bar.update_counts(songs_count, artists_count)
         self.top_bar.update_status(scanning)
 
-    def update_left_sidebar(self, artists):
-        self.left_sidebar.populate_artists(artists)
+    def update_left_sidebar(self, artists = None, playlists = None):
+        if artists:
+            self.left_sidebar.populate_artists(artists)
+        
+        if playlists:
+            self.left_sidebar.populate_playlists(playlists)
 
     def handle_artist_selection(self, artist_id):
         self.artist_selected.emit(artist_id)
