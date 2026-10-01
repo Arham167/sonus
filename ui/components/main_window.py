@@ -11,8 +11,9 @@ class MainWindow(QMainWindow):
     artist_selected = Signal(str)
     song_selected = Signal(str)
     play_pause = Signal()
-    new_playlist = Signal(PlaylistMenu, str, str)
+    new_playlist = Signal(PlaylistMenu, object, str)
     add_playlist = Signal(str, str)
+    playlist_selected = Signal(str)
 
     def __init__(self, screen):
         super().__init__()
@@ -39,6 +40,8 @@ class MainWindow(QMainWindow):
         self.left_sidebar = LeftSideBar()
         inner_left_layout.addWidget(self.left_sidebar)
         self.left_sidebar.artist_selected.connect(self.handle_artist_selection)
+        self.left_sidebar.playlist_selected.connect(self.handle_playlist_selection)
+        self.left_sidebar.new_playlist_requested.connect(self.create_new_playlist)
 
         self.library_view = LibraryView()
         inner_mid_layout.addWidget(self.library_view)
@@ -113,10 +116,16 @@ class MainWindow(QMainWindow):
     def update_seek_bar_position(self, position):
         self.playback_bar.update_position(position)
 
-    def create_new_playlist(self, song_path):
+    def create_new_playlist(self, song_path = None):
         self.playlist_menu = PlaylistMenu(song_path)
         self.playlist_menu.show()
         self.playlist_menu.new_playlist.connect(lambda song_path, playlist_name: self.new_playlist.emit(self.playlist_menu, song_path, playlist_name))
 
     def add_to_playlist(self, song_path, playlist_name):
         self.add_playlist.emit(song_path, playlist_name)
+
+    def handle_playlist_selection(self, playlist_id):
+        self.playlist_selected.emit(playlist_id)
+
+    def update_library_view_playlist(self, songs):
+        self.library_view.display_playlist_songs(songs)

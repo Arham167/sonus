@@ -75,6 +75,7 @@ class SonusApplication(QObject):
         self.window.play_pause.connect(self.handle_playback)
         self.window.new_playlist.connect(self.create_new_playlist)
         self.window.add_playlist.connect(self.add_to_playlist)
+        self.window.playlist_selected.connect(self.handle_playlist_selection)
         self.window.showMaximized()
 
         self.player = QMediaPlayer()
@@ -171,16 +172,16 @@ class SonusApplication(QObject):
         self.get_artists_and_playlists_from_db()
 
     def get_artists_and_playlists_from_db(self):
-        artists = database.list_all_artists()
-        playlists = database.list_all_playlists()
+        artists = database.get_all_artists()
+        playlists = database.get_all_playlists()
         self.window.update_left_sidebar(playlists, artists)
 
     def handle_artist_selection(self, artist_id):
-        playlists = database.list_all_playlists()
+        playlists = database.get_all_playlists()
 
         if artist_id == "all":
             songs = database.get_all_songs()
-            artists = database.list_all_artists()
+            artists = database.get_all_artists()
             self.window.update_library_view_all(artists, songs, playlists)
         else:
             songs = database.get_songs_from_artist(artist_id)
@@ -216,16 +217,29 @@ class SonusApplication(QObject):
 
     def create_new_playlist(self, menu, song_path, playlist_name):
         if database.add_playlist(playlist_name):
-            if database.add_song_to_playlist(song_path, playlist_name):
-                menu.close()
-        
+            if song_path is not None:
+                if database.add_song_to_playlist(song_path, playlist_name):
+                    menu.close()
+                else:
+                    menu.label.setText("Song already exists in playlist")
+            else:        
+                menu.close()        
         else:
             menu.label.setText("Playlist already exists")
 
     def add_to_playlist(self, song_path, playlist_name):
         if database.playlist_exists(playlist_name):
             if database.add_song_to_playlist(song_path, playlist_name):
-                print("yes")          
+                print("yes")
 
+    def handle_playlist_selection(self, playlist_id):
+        song_ids = database.get_songs_from_playlist(playlist_id)
+        song_names = []
+        for song in song_ids:
+            song_name = database.get_song_from_id(song[0])
+            song_names.append(song_name)
+
+        self.window.update_library_view_playlist(song_names)
+    
     def run(self):
         self.application.exec()

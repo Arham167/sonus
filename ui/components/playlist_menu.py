@@ -2,7 +2,7 @@ from PySide6.QtWidgets import QSizePolicy, QVBoxLayout, QHBoxLayout, QDialog, QL
 from PySide6.QtCore import QTimer, Qt, Signal
 
 class PlaylistMenu(QDialog):
-    new_playlist = Signal(str, str)
+    new_playlist = Signal(object, str)
 
     def __init__(self, song_path, parent = None):
         super().__init__(parent)

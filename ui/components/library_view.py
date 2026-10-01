@@ -78,3 +78,15 @@ class LibraryView(QScrollArea):
                     button.new_playlist_requested.connect(lambda song_path: self.new_playlist.emit(song_path))
                     button.add_to_playlist_requested.connect(lambda song_path, playlist_name: self.add_playlist.emit(song_path, playlist_name))
                     self.songs_layout.addWidget(button)
+
+    def display_playlist_songs(self, songs):
+        while self.songs_layout.count():
+            item = self.songs_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+
+        for song in songs:
+            button = SongButton(None, self.format_song_display_name(song), song[4])
+            button.setObjectName("libraryViewSongButton")
+            button.song_play_requested.connect(lambda path: self.song_selected.emit(path))
+            self.songs_layout.addWidget(button)

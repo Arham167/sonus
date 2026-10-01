@@ -7,7 +7,7 @@ class SongButton(QPushButton):
     new_playlist_requested = Signal(str)
     add_to_playlist_requested = Signal(str, str)
 
-    def __init__(self, playlists, text = "", song_path = "", parent = None):
+    def __init__(self, playlists = "", text = "", song_path = "", parent = None):
         super().__init__(text, parent)
         self.song_path = song_path
         self.playlists = playlists

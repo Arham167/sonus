@@ -10,6 +10,7 @@ icons_path = os.path.join(assets_path, "icons")
 class LeftSideBar(QScrollArea):
     artist_selected = Signal(str)
     playlist_selected = Signal(str)
+    new_playlist_requested = Signal()
     
     def __init__(self, parent = None):
         super().__init__(parent)
@@ -90,6 +91,7 @@ class LeftSideBar(QScrollArea):
             new_playlist_button = QPushButton("<New Playlist>")
             new_playlist_button.setObjectName("leftSideBarButton")
             self.playlist_layout.addWidget(new_playlist_button, alignment = Qt.AlignLeft)
+            new_playlist_button.clicked.connect(lambda checked = False: self.new_playlist_requested.emit())
 
         else:
             for i in reversed(range(self.playlist_layout.count())):
@@ -107,6 +109,7 @@ class LeftSideBar(QScrollArea):
             new_playlist_button = QPushButton("<New Playlist>")
             new_playlist_button.setObjectName("leftSideBarButton")
             self.playlist_layout.addWidget(new_playlist_button, alignment = Qt.AlignLeft)
+            new_playlist_button.clicked.connect(lambda checked = False: self.new_playlist_requested.emit())
 
             self.playlist_layout.addStretch()
 
