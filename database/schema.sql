@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS settings (
 
 CREATE TABLE IF NOT EXISTS playlists(
                   playlist_id text PRIMARY KEY NOT NULL,
-                  name TEXT NOT NULL 
+                  playlist_name TEXT NOT NULL 
 );
 
 CREATE TABLE IF NOT EXISTS playlists_songs(

@@ -73,6 +73,8 @@ class SonusApplication(QObject):
         self.window.artist_selected.connect(self.handle_artist_selection)
         self.window.song_selected.connect(self.handle_song_double_click)
         self.window.play_pause.connect(self.handle_playback)
+        self.window.new_playlist.connect(self.create_new_playlist)
+        self.window.add_playlist.connect(self.add_to_playlist)
         self.window.showMaximized()
 
         self.player = QMediaPlayer()
@@ -150,7 +152,7 @@ class SonusApplication(QObject):
         self.window.left_sidebar.playlist_button.setEnabled(True)
 
         self.window.update_topbar(songs_count, artists_count, scanning = False)
-        self.get_artists_from_db()
+        self.get_artists_and_playlists_from_db()
 
     def on_import_error(self, message):
         self.popup.submit_button.setEnabled(True)
@@ -166,25 +168,24 @@ class SonusApplication(QObject):
         self.window.left_sidebar.artist_button.setEnabled(True)
         self.window.left_sidebar.playlist_button.setEnabled(True)
         
-        self.get_artists_from_db()
+        self.get_artists_and_playlists_from_db()
 
-    def get_artists_from_db(self):
+    def get_artists_and_playlists_from_db(self):
         artists = database.list_all_artists()
-        self.window.update_left_sidebar(artists)
-
-    def get_playlists_from_db(self):
         playlists = database.list_all_playlists()
-        self.window.update_left_sidebar(playlists)
+        self.window.update_left_sidebar(playlists, artists)
 
     def handle_artist_selection(self, artist_id):
+        playlists = database.list_all_playlists()
+
         if artist_id == "all":
             songs = database.get_all_songs()
             artists = database.list_all_artists()
-            self.window.update_library_view_all(artists, songs)
+            self.window.update_library_view_all(artists, songs, playlists)
         else:
             songs = database.get_songs_from_artist(artist_id)
             artist = database.get_artist_from_id(artist_id)
-            self.window.update_library_view_single(artist, songs)
+            self.window.update_library_view_single(artist, songs, playlists)
 
     def handle_song_double_click(self, path):
         play_song(self.player, path)
@@ -212,6 +213,19 @@ class SonusApplication(QObject):
 
     def on_position_changed(self, position):
         self.window.update_seek_bar_position(position)
+
+    def create_new_playlist(self, menu, song_path, playlist_name):
+        if database.add_playlist(playlist_name):
+            if database.add_song_to_playlist(song_path, playlist_name):
+                menu.close()
+        
+        else:
+            menu.label.setText("Playlist already exists")
+
+    def add_to_playlist(self, song_path, playlist_name):
+        if database.playlist_exists(playlist_name):
+            if database.add_song_to_playlist(song_path, playlist_name):
+                print("yes")          
 
     def run(self):
         self.application.exec()

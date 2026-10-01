@@ -86,23 +86,27 @@ class LeftSideBar(QScrollArea):
         self.artist_layout.addStretch()
 
     def populate_playlists(self, playlists):
-        for i in reversed(range(self.playlist_layout.count())):
-            widget = self.playlist_layout.itemAt(i).widget()
-            if widget:
-                widget.deleteLater()
+        if playlists is None:
+            new_playlist_button = QPushButton("<New Playlist>")
+            new_playlist_button.setObjectName("leftSideBarButton")
+            self.playlist_layout.addWidget(new_playlist_button, alignment = Qt.AlignLeft)
 
-        all_playlists_button = QPushButton("All Playlists")
-        all_playlists_button.setObjectName("leftSideBarButton")
-        all_playlists_button.clicked.connect(lambda checked = False, playlist_id = "all": self.playlist_selected.emit(playlist_id))
-        
-        self.playlist_layout.addWidget(all_playlists_button, alignment = Qt.AlignLeft)
+        else:
+            for i in reversed(range(self.playlist_layout.count())):
+                widget = self.playlist_layout.itemAt(i).widget()
+                if widget:
+                    widget.deleteLater()
 
-        for playlist in playlists:
-            button = QPushButton(playlist[1])
-            button.setObjectName("leftSideBarButton")
-            button.clicked.connect(lambda checked = False, playlist_id = playlist[0]: self.playlist_selected.emit(playlist_id))
+            for playlist in playlists:
+                button = QPushButton(playlist[1])
+                button.setObjectName("leftSideBarButton")
+                button.clicked.connect(lambda checked = False, playlist_id = playlist[0]: self.playlist_selected.emit(playlist_id))
 
-            self.playlist_layout.addWidget(button, alignment = Qt.AlignLeft)
+                self.playlist_layout.addWidget(button, alignment = Qt.AlignLeft)
 
-        self.playlist_layout.addStretch()
+            new_playlist_button = QPushButton("<New Playlist>")
+            new_playlist_button.setObjectName("leftSideBarButton")
+            self.playlist_layout.addWidget(new_playlist_button, alignment = Qt.AlignLeft)
+
+            self.playlist_layout.addStretch()
 

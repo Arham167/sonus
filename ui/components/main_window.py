@@ -5,11 +5,14 @@ from ui.components.left_sidebar import LeftSideBar
 from ui.components.library_view import LibraryView
 from ui.components.right_sidebar import RightSideBar
 from ui.components.playback_bar import PlaybackBar
+from ui.components.playlist_menu import PlaylistMenu
 
 class MainWindow(QMainWindow):
     artist_selected = Signal(str)
     song_selected = Signal(str)
     play_pause = Signal()
+    new_playlist = Signal(PlaylistMenu, str, str)
+    add_playlist = Signal(str, str)
 
     def __init__(self, screen):
         super().__init__()
@@ -40,6 +43,8 @@ class MainWindow(QMainWindow):
         self.library_view = LibraryView()
         inner_mid_layout.addWidget(self.library_view)
         self.library_view.song_selected.connect(self.handle_song_double_click)
+        self.library_view.new_playlist.connect(self.create_new_playlist)
+        self.library_view.add_playlist.connect(self.add_to_playlist)
 
         self.right_sidebar = RightSideBar()
         inner_right_layout.addWidget(self.right_sidebar)
@@ -75,21 +80,20 @@ class MainWindow(QMainWindow):
         self.top_bar.update_counts(songs_count, artists_count)
         self.top_bar.update_status(scanning)
 
-    def update_left_sidebar(self, artists = None, playlists = None):
+    def update_left_sidebar(self, playlists, artists = None):
         if artists:
             self.left_sidebar.populate_artists(artists)
-        
-        if playlists:
-            self.left_sidebar.populate_playlists(playlists)
+    
+        self.left_sidebar.populate_playlists(playlists)
 
     def handle_artist_selection(self, artist_id):
         self.artist_selected.emit(artist_id)
 
-    def update_library_view_single(self, artist, songs):
-        self.library_view.display_songs_from_artist(artist, songs)
+    def update_library_view_single(self, artist, songs, playlists):
+        self.library_view.display_songs_from_artist(artist, songs, playlists)
 
-    def update_library_view_all(self, artists, songs):
-        self.library_view.display_all_songs(artists, songs)
+    def update_library_view_all(self, artists, songs, playlists):
+        self.library_view.display_all_songs(artists, songs, playlists)
 
     def handle_song_double_click(self, path):
         self.song_selected.emit(path)
@@ -108,3 +112,11 @@ class MainWindow(QMainWindow):
 
     def update_seek_bar_position(self, position):
         self.playback_bar.update_position(position)
+
+    def create_new_playlist(self, song_path):
+        self.playlist_menu = PlaylistMenu(song_path)
+        self.playlist_menu.show()
+        self.playlist_menu.new_playlist.connect(lambda song_path, playlist_name: self.new_playlist.emit(self.playlist_menu, song_path, playlist_name))
+
+    def add_to_playlist(self, song_path, playlist_name):
+        self.add_playlist.emit(song_path, playlist_name)

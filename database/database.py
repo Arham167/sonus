@@ -86,6 +86,44 @@ def add_artist(cursor, artist_name):
     else:
         return artist_id[0]
 
+def add_playlist(playlist_name):
+    try:
+        with sqlite3.connect(db_path) as conn:
+            cursor = conn.cursor()
+
+            if playlist_exists(playlist_name) is None:
+                playlist_id = str(uuid.uuid4())
+                cursor.execute("""INSERT INTO playlists(playlist_id, playlist_name) 
+                              VALUES (?, ?)""", (playlist_id, playlist_name))
+
+                return playlist_id
+
+            else:
+                return False
+    
+    except sqlite3.OperationalError as e:
+        print(f"error happened: {e}")
+
+def add_song_to_playlist(song_path, playlist_name):
+    try:
+        with sqlite3.connect(db_path) as conn:
+            cursor = conn.cursor()
+
+            song_id = get_song_from_path(song_path)
+            playlist_id = playlist_exists(playlist_name)
+
+            if not playlist_id:
+                playlist_id = add_playlist(playlist_name)
+
+            if not get_songs_in_playlist(cursor, song_id, playlist_id):
+                cursor.execute("""INSERT INTO playlists_songs(playlist_id, song_id)
+                                    VALUES (?, ?)""", (playlist_id[0], song_id[0]))
+
+            return True
+    
+    except sqlite3.OperationalError as e:
+        print(f"error happened .: {e}")
+
 def song_exists(cursor, path):
     search_song_statement = """SELECT 1
                                FROM songs 
@@ -108,6 +146,26 @@ def artist_exists(cursor, artist_name):
 
     if artist_id is not None:
         return artist_id
+
+def playlist_exists(playlist_name):
+    try:
+        with sqlite3.connect(db_path) as conn:
+            cursor = conn.cursor()
+            search_playlist_statement = """SELECT playlist_id
+                                   FROM playlists
+                                   WHERE playlist_name = ?"""
+
+            cursor.execute(search_playlist_statement, (playlist_name,))
+            playlist_id = cursor.fetchone()
+
+            if playlist_id:
+                return playlist_id
+
+            else:
+                return None
+    
+    except sqlite3.OperationalError as e:
+        print(f"error happened: {e}")
 
 def delete_song(cursor, path):
     delete_statement = """DELETE FROM songs
@@ -152,6 +210,19 @@ def get_all_song_paths():
 
     except sqlite3.OperationalError as e:
         print(f"error happened: {e}")
+
+def get_songs_in_playlist(cursor, song_id, playlist_id):
+    cursor.execute("""SELECT * FROM playlists_songs 
+                    WHERE song_id = ? 
+                    AND playlist_id = ? 
+                    LIMIT 1""", (song_id[0], playlist_id[0]))
+    row = cursor.fetchone()
+
+    if row:
+        return row
+
+    else:
+        return False
 
 def list_all_artists():
     try:
@@ -216,6 +287,19 @@ def get_songs_from_artist(artist_id):
 
     except sqlite3.OperationalError as e:
         print(f"error happened: {e}")
+
+def get_song_from_path(song_path):
+    try:
+        with sqlite3.connect(db_path) as conn:
+            cursor = conn.cursor()
+            get_statement = """SELECT song_id FROM songs WHERE path = ? LIMIT 1"""
+            cursor.execute(get_statement, (song_path,))
+            song_id = cursor.fetchone()
+
+            return song_id
+
+    except sqlite3.OperationalError as e:
+        print(f"error happened: {e}") 
 
 def get_artist_from_id(artist_id):
     try:

@@ -4,6 +4,8 @@ from ui.components.song_button import SongButton
 
 class LibraryView(QScrollArea):
     song_selected = Signal(str)
+    new_playlist = Signal(str)
+    add_playlist = Signal(str, str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -39,7 +41,7 @@ class LibraryView(QScrollArea):
 
         return song_name
 
-    def display_songs_from_artist(self, artist, songs):
+    def display_songs_from_artist(self, artist, songs, playlists):
         while self.songs_layout.count():
             item = self.songs_layout.takeAt(0)
             if item.widget():
@@ -50,12 +52,14 @@ class LibraryView(QScrollArea):
         self.songs_layout.addWidget(artist_label)
 
         for song in songs:
-            button = SongButton(self.format_song_display_name(song), song[4])
+            button = SongButton(playlists, self.format_song_display_name(song), song[4])
             button.setObjectName("libraryViewSongButton")
             button.song_play_requested.connect(lambda path: self.song_selected.emit(path))
+            button.new_playlist_requested.connect(lambda song_path: self.new_playlist.emit(song_path))
+            button.add_to_playlist_requested.connect(lambda song_path, playlist_name: self.add_playlist.emit(song_path, playlist_name))
             self.songs_layout.addWidget(button)
 
-    def display_all_songs(self, artists, songs):
+    def display_all_songs(self, artists, songs, playlists):
         while self.songs_layout.count():
             item = self.songs_layout.takeAt(0)
             if item.widget():
@@ -68,7 +72,9 @@ class LibraryView(QScrollArea):
 
             for song in songs:
                 if song[2] == artist[0]:
-                    button = SongButton(self.format_song_display_name(song), song[4])
+                    button = SongButton(playlists, self.format_song_display_name(song), song[4])
                     button.setObjectName("libraryViewSongButton")
-                    button.doubleClicked.connect(lambda path: self.song_selected.emit(path))
+                    button.song_play_requested.connect(lambda path: self.song_selected.emit(path))
+                    button.new_playlist_requested.connect(lambda song_path: self.new_playlist.emit(song_path))
+                    button.add_to_playlist_requested.connect(lambda song_path, playlist_name: self.add_playlist.emit(song_path, playlist_name))
                     self.songs_layout.addWidget(button)
