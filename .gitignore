@@ -5,3 +5,5 @@ __pycache__/*
 *.db
 *.venv
 test.py
+/build/
+/dist/

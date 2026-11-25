@@ -1,7 +1,19 @@
-import sqlite3, os, time, uuid
+import sqlite3
+import os
+import time
+import uuid
 
+# Persistent user data, outside the packaged application.
+app_data_dir = os.path.join(
+    os.environ.get("APPDATA", os.path.expanduser("~")),
+    "Sonus"
+)
+os.makedirs(app_data_dir, exist_ok=True)
+
+db_path = os.path.join(app_data_dir, "sonus.db")
+
+# Bundled schema file, located alongside this module's package.
 base_dir = os.path.dirname(os.path.abspath(__file__))
-db_path = os.path.join(base_dir, "sonus.db")
 schema_path = os.path.join(base_dir, "schema.sql")
 
 def initialize_database(songs_data = None, folder = None):
