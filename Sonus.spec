@@ -9,7 +9,7 @@ a = Analysis(
     ['run_sonus.py'],
     pathex=['.'],
     binaries=[],
-    datas=[('ui', 'ui'), ('database/schema.sql', 'database')],
+    datas=[('ui', 'ui'), ('database/schema.sql', 'database'), ('database/sonus.db', 'database')],
     hiddenimports=hiddenimports,
     hookspath=[],
     hooksconfig={},

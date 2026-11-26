@@ -1,7 +1,8 @@
-from PySide6.QtWidgets import QScrollArea, QWidget, QVBoxLayout, QLabel, QPushButton
-from PySide6.QtCore import Qt, Signal, QSize
-from PySide6.QtGui import QIcon
 import os
+
+from PySide6.QtCore import QSize, Qt, Signal
+from PySide6.QtGui import QIcon
+from PySide6.QtWidgets import QPushButton, QScrollArea, QVBoxLayout, QWidget
 
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 assets_path = os.path.join(base_dir, "assets")
@@ -11,16 +12,16 @@ class LeftSideBar(QScrollArea):
     artist_selected = Signal(str)
     playlist_selected = Signal(str)
     new_playlist_requested = Signal()
-    
+
     def __init__(self, parent = None):
         super().__init__(parent)
 
         self.setWidgetResizable(True)
-        
+
         self.sidebar_widget = QWidget()
         self.sidebar_widget.setObjectName("leftSideBarContent")
         self.outer_layout = QVBoxLayout(self.sidebar_widget)
-        
+
         self.artist_button = QPushButton("Artists")
         self.artist_button.setObjectName("leftSideBarButton")
         self.artist_button.setIconSize(QSize(14, 14))
@@ -47,7 +48,7 @@ class LeftSideBar(QScrollArea):
         self.playlist_content.setVisible(False)
 
         self.outer_layout.addWidget(self.playlist_button)
-        self.outer_layout.addWidget(self.playlist_content)     
+        self.outer_layout.addWidget(self.playlist_content)
 
         self.outer_layout.addStretch()
 
@@ -74,7 +75,7 @@ class LeftSideBar(QScrollArea):
         all_artists_button = QPushButton("All Artists")
         all_artists_button.setObjectName("leftSideBarButton")
         all_artists_button.clicked.connect(lambda checked = False, artist_id = "all": self.artist_selected.emit(artist_id))
-        
+
         self.artist_layout.addWidget(all_artists_button, alignment = Qt.AlignLeft)
 
         for artist in artists:

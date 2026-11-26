@@ -1,6 +1,8 @@
-from PySide6.QtWidgets import QScrollArea, QWidget, QVBoxLayout, QLabel, QPushButton
 from PySide6.QtCore import Qt, Signal
+from PySide6.QtWidgets import QLabel, QScrollArea, QVBoxLayout, QWidget
+
 from ui.components.song_button import SongButton
+
 
 class LibraryView(QScrollArea):
     song_selected = Signal(str)

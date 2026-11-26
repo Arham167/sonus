@@ -1,11 +1,13 @@
-from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel
-from PySide6.QtCore import QTimer, QEvent, Qt, Signal
-from ui.components.top_bar import TopBar
+from PySide6.QtCore import QEvent, Qt, Signal
+from PySide6.QtWidgets import QHBoxLayout, QMainWindow, QVBoxLayout, QWidget
+
 from ui.components.left_sidebar import LeftSideBar
 from ui.components.library_view import LibraryView
-from ui.components.right_sidebar import RightSideBar
 from ui.components.playback_bar import PlaybackBar
 from ui.components.playlist_menu import PlaylistMenu
+from ui.components.right_sidebar import RightSideBar
+from ui.components.top_bar import TopBar
+
 
 class MainWindow(QMainWindow):
     artist_selected = Signal(str)
@@ -25,7 +27,7 @@ class MainWindow(QMainWindow):
         new_h = int(height * 0.9)
 
         self.setMinimumSize(new_w, new_h)
-        
+
         self.container = QWidget()
 
         outer_layout = QVBoxLayout(self.container)
@@ -86,7 +88,7 @@ class MainWindow(QMainWindow):
     def update_left_sidebar(self, playlists, artists = None):
         if artists:
             self.left_sidebar.populate_artists(artists)
-    
+
         self.left_sidebar.populate_playlists(playlists)
 
     def handle_artist_selection(self, artist_id):

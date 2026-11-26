@@ -2,6 +2,8 @@ import sqlite3
 import os
 import time
 import uuid
+import shutil
+import sys
 
 # Persistent user data, outside the packaged application.
 app_data_dir = os.path.join(
@@ -11,6 +13,14 @@ app_data_dir = os.path.join(
 os.makedirs(app_data_dir, exist_ok=True)
 
 db_path = os.path.join(app_data_dir, "sonus.db")
+
+if getattr(sys, "frozen", False):
+    bundled_db_path = os.path.join(sys._MEIPASS, "database", "sonus.db")
+else:
+    bundled_db_path = os.path.join(os.path.dirname(__file__), "sonus.db")
+
+if not os.path.exists(db_path):
+    shutil.copy2(bundled_db_path, db_path)
 
 # Bundled schema file, located alongside this module's package.
 base_dir = os.path.dirname(os.path.abspath(__file__))

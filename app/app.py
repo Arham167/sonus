@@ -30,14 +30,14 @@ class ScanWorker(QObject):
 
             if self.mode == "manual":
                 database.initialize_database(songs_data)
-                
+
                 songs_count = database.get_songs_count()
                 artists_count = database.get_artists_count()
 
                 self.finished.emit(songs_count, artists_count)
 
             elif self.mode == "background":
-                existing_paths = database.get_all_song_paths() 
+                existing_paths = database.get_all_song_paths()
                 scanned_paths = []
 
                 for song in songs_data:
@@ -105,8 +105,8 @@ class SonusApplication(QObject):
 
         try:
             database.initialize_database(folder = folder)
-            
-        except Exception:
+
+        except Exception:  # noqa: BLE001
             self.popup.submit_button.setEnabled(True)
             self.popup.submit_button.setText("Submit")
             self.window.left_sidebar.artist_button.setEnabled(True)
@@ -131,7 +131,7 @@ class SonusApplication(QObject):
         self.window.update_topbar(scanning = True)
         self.window.left_sidebar.artist_button.setEnabled(False)
         self.window.left_sidebar.playlist_button.setEnabled(False)
-        
+
         self.scan_thread = QThread()
         self.scan_worker = ScanWorker(folder, mode = "background")
         self.scan_worker.moveToThread(self.scan_thread)
@@ -158,7 +158,7 @@ class SonusApplication(QObject):
     def on_import_error(self, message):
         self.popup.submit_button.setEnabled(True)
         self.popup.submit_button.setText("Submit")
-        
+
         self.window.left_sidebar.artist_button.setEnabled(True)
         self.window.left_sidebar.playlist_button.setEnabled(True)
 
@@ -168,7 +168,7 @@ class SonusApplication(QObject):
         self.window.update_topbar(songs_count, artists_count, scanning = False)
         self.window.left_sidebar.artist_button.setEnabled(True)
         self.window.left_sidebar.playlist_button.setEnabled(True)
-        
+
         self.get_artists_and_playlists_from_db()
 
     def get_artists_and_playlists_from_db(self):
@@ -220,16 +220,17 @@ class SonusApplication(QObject):
             if song_path is not None:
                 if database.add_song_to_playlist(song_path, playlist_name):
                     menu.close()
+                    self.background_scan(database.get_settings("music_folder"))
                 else:
                     menu.label.setText("Song already exists in playlist")
-            else:        
-                menu.close()        
+            else:
+                self.background_scan(database.get_settings("music_folder"))
+                menu.close()
         else:
             menu.label.setText("Playlist already exists")
 
     def add_to_playlist(self, song_path, playlist_name):
-        if database.playlist_exists(playlist_name):
-            if database.add_song_to_playlist(song_path, playlist_name):
+        if database.playlist_exists(playlist_name) and database.add_song_to_playlist(song_path, playlist_name):
                 print("yes")
 
     def handle_playlist_selection(self, playlist_id):
@@ -240,6 +241,6 @@ class SonusApplication(QObject):
             song_names.append(song_name)
 
         self.window.update_library_view_playlist(song_names)
-    
+
     def run(self):
         self.application.exec()

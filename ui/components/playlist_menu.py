@@ -1,5 +1,14 @@
-from PySide6.QtWidgets import QSizePolicy, QVBoxLayout, QHBoxLayout, QDialog, QLabel, QLineEdit, QPushButton
-from PySide6.QtCore import QTimer, Qt, Signal
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtWidgets import (
+    QDialog,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QSizePolicy,
+    QVBoxLayout,
+)
+
 
 class PlaylistMenu(QDialog):
     new_playlist = Signal(object, str)
@@ -7,7 +16,7 @@ class PlaylistMenu(QDialog):
     def __init__(self, song_path, parent = None):
         super().__init__(parent)
         self.song_path = song_path
-        
+
         self.setWindowTitle("New Playlist")
 
         self.label = QLabel("Enter Playlist Name", self)
